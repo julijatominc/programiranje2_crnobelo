@@ -1,5 +1,7 @@
 from tkinter import*
 import ast
+import argparse   
+import logging  
 
 ######################################################################
 ## Zacetne nastavitve
@@ -19,7 +21,7 @@ class tabla():
         self.matrika = [[[True, True, None] for _ in range(self.crnobelo.velikost)] for _ in range(self.crnobelo.velikost)]
         self.na_vrsti = JAZ
         self.konec = False
-
+    
     # Funkcija, ki preveri, ce je poteza dovoljena.
     def dovoljeno(self, x, y):
         if self.na_vrsti == JAZ and self.matrika[y][x][0]:
@@ -28,7 +30,7 @@ class tabla():
             return True
         else:
             return False
-
+    # Funkcija,ki pove, če je igre konec.
     def konec_igre(self):
         if self.na_vrsti == JAZ:
             n = 0
@@ -92,6 +94,16 @@ class crnobelo():
         settings_menu.add_command(label="8", command= lambda: self.nova_igra(None, None, 8))
         settings_menu.add_command(label="9", command= lambda: self.nova_igra(None, None, 9))
 
+        settings_menu = Menu(menu)
+        menu.add_cascade(label="Igralci", menu=settings_menu)
+        settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(clovek(self), clovek(self), None))
+        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(clovek(self), minimax(self), None))
+        settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(clovek(self), alfabeta(self), None))
+        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(alfabeta(self), minimax(self), None))
+        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(minimax(self), minimax(self), None))
+        settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(alfabeta(self), alfabeta(self), None))
+
+
         self.zacni_igro()
 
     # Funkcija za risanje sahovnice.
@@ -108,6 +120,7 @@ class crnobelo():
         if not crni:
             crni = clovek(self)
 
+        logging.debug("Beli:{0}, Crni:{1}".format(beli,crni))
         self.igra = tabla(self)
         self.nova_igra(beli, crni)
 
@@ -131,6 +144,7 @@ class crnobelo():
         self.igra.matrika = [[[True, True, None] for _ in  range(self.velikost)] for _ in range(self.velikost)]
         self.napis.set("")
         self.igra.na_vrsti = JAZ
+        logging.debug("Na vrsti:{0}".format(self.igra.na_vrsti))
 
     # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo
     def plosca_klik(self, event):
@@ -170,9 +184,13 @@ class crnobelo():
                         self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
                         self.igra.konec = True
 
+                    logging.debug("{0}".format(self.igra.matrika))
+                    logging.debug("Ali je konec? {0}".format(self.igra.konec))
+                    
+
                 else:
                     self.napis.set("Neveljavna poteza!")
-        print(self.igra.konec_igre())
+        
 
 
     # Funkcija, ki shrani igro v datoteko.
@@ -249,13 +267,45 @@ class crnobelo():
 ## Igralec minimax
 
 class minimax():
-    pass
+    def __init__(self, globina):
+        self.globina = globina
+        self.prekinitev = False # Če moramo končati.
+        self.igra = None # Opis igrice.
+        # poimenovanje? self.jaz = None #kateri igralec je na vrsti
+        self.poteza = None 
+
+    def prekini(self):
+        pass
+
+    def izracunaj_potezo(self):
+        pass
+
+    def vrednost_pozicije(self):
+        pass
+
+    def minimax(self):
+        pass
+    
+
 
 ######################################################################
 ## Igralec alfabeta
 
 class alfabeta():
-    pass
+    def __init__(self, globina):
+        self.prekinitev = False
+        self.igra = None
+        self.poteza = None
+        self.globina = globina
+        
+    def prekini(self):
+        pass
+
+    def alfabeta(self):
+        pass
+
+
+    
 
 ######################################################################
 ## Igralec clovek
@@ -284,6 +334,18 @@ class clovek():
 ## Glavni program
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="Igrica Crnobelo")
+
+    parser.add_argument('--debug',
+                        action='store_true',
+                        help='vklopi sporočila o dogajanju')
+
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
     # Naredimo glavno okno in nastavimo ime
     root = Tk()
     root.title("Crnobelo")
