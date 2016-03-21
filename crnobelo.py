@@ -1,7 +1,10 @@
 from tkinter import*
 import ast
-import argparse   
-import logging  
+import argparse
+import logging
+import random
+import threading
+import copy
 
 ######################################################################
 ## Zacetne nastavitve
@@ -21,7 +24,8 @@ class tabla():
         self.matrika = [[[True, True, None] for _ in range(self.crnobelo.velikost)] for _ in range(self.crnobelo.velikost)]
         self.na_vrsti = JAZ
         self.konec = False
-    
+        logging.debug("Velikost(27): {0}.".format(self.crnobelo.velikost))
+
     # Funkcija, ki preveri, ce je poteza dovoljena.
     def dovoljeno(self, x, y):
         if self.na_vrsti == JAZ and self.matrika[y][x][0]:
@@ -30,7 +34,8 @@ class tabla():
             return True
         else:
             return False
-    # Funkcija,ki pove, če je igre konec.
+
+    # Funkcija,ki pove, ce je igre konec.
     def konec_igre(self):
         if self.na_vrsti == JAZ:
             n = 0
@@ -43,6 +48,21 @@ class tabla():
                      return False
 
         return True
+
+    # Funkcija, ki skopira tablo.
+    def kopija(self, CRNOBELO):
+        logging.debug("Kopiram...")
+        k = tabla(CRNOBELO)
+        k.matrika = copy.deepcopy(self.matrika)
+
+        # k.matrika = [[[True, True, None] for _ in range(l)] for _ in range(l)]
+        # for i in range(l):
+        #     for j in range(l):
+        #         k.matrika[i][j] = self.matrika[i][j]
+
+        k.na_vrsti = self.na_vrsti
+        k.konec = self.konec
+        return k
 
 ######################################################################
 ## Uporabniski vmesnik
@@ -97,13 +117,13 @@ class crnobelo():
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
         settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(clovek(self), clovek(self), None))
-        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(clovek(self), minimax(self), None))
+        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(clovek(self), Racunalnik(self, Minimax()), None))
         settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(clovek(self), alfabeta(self), None))
-        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(alfabeta(self), minimax(self), None))
-        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(minimax(self), minimax(self), None))
+        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(alfabeta(self),Racunalnik(self, Minimax()), None))
+        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax()), Racunalnik(self, Minimax()), None))
         settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(alfabeta(self), alfabeta(self), None))
 
-
+        # logging.debug("Velikost: {0}.".format(self.velikost))
         self.zacni_igro()
 
     # Funkcija za risanje sahovnice.
@@ -124,11 +144,11 @@ class crnobelo():
         self.igra = tabla(self)
         self.nova_igra(beli, crni)
 
-
     # Funkcija, ki ustvari novo igro.
     def nova_igra(self, beli=None, crni=None, velikost=None):
-
+        logging.debug("Nova igra")
         self.prekini_igralce()
+        self.igra.konec = False
 
         if  velikost:
             self.velikost = velikost
@@ -141,10 +161,16 @@ class crnobelo():
             self.JAZ = beli
             self.ON = crni
 
+        # logging.debug("Velikost: {0}.".format(self.velikost))
+
         self.igra.matrika = [[[True, True, None] for _ in  range(self.velikost)] for _ in range(self.velikost)]
         self.napis.set("")
         self.igra.na_vrsti = JAZ
         logging.debug("Na vrsti:{0}".format(self.igra.na_vrsti))
+
+        logging.debug("Beli: {0}, Crni: {1}".format(self.JAZ, self.ON))
+
+        self.JAZ.igraj()
 
     # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo
     def plosca_klik(self, event):
@@ -156,15 +182,21 @@ class crnobelo():
             pass
 
     # Funkcija, ki glede na igralca na vrsti in na njegovo dejanje naredi potezo
-    def izberi(self, event):
+    def izberi(self, xy):
+        x = xy[0]
+        y = xy[1]
         # Preveri, ce je konec igre. V primeru, da je konec, nocemo vec dogajanja na plosci.
+        logging.debug("Preverim, ce je konec igre.")
         if not self.igra.konec:
             self.napis.set("")
-            x, y = (event.x - 50) // 100, (event.y - 50) // 100
+            logging.debug("Preverim, ce je x, y na tabli.")
             if x >= 0 and y >= 0 and x < self.velikost and y <self.velikost:
                 # Preveri, ce je poteza dovoljena.
+                logging.debug("Preverim, ce je poteza dovoljena.")
                 if self.igra.dovoljeno(x, y):
+                    logging.debug("Preverim, kdo je na vrsti.")
                     if self.igra.na_vrsti == JAZ:
+                        logging.debug("Na vrsti je jaz, spreminjam...")
                         # Spremeni matriko, v kateri imamo zapisano katere poteze so mozne.
                         self.spremeni_matriko(x, y, 1)
                         # Na potezi je nasprotnik.
@@ -172,6 +204,7 @@ class crnobelo():
                         # Narise krog.
                         self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=crnobelo.TAG_KROG)
                     else:
+                        logging.debug("Na vrsti je on, spreminjam")
                         self.spremeni_matriko(x, y, 0)
                         self.igra.na_vrsti = JAZ
                         self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=crnobelo.TAG_KROG)
@@ -184,14 +217,28 @@ class crnobelo():
                         self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
                         self.igra.konec = True
 
-                    logging.debug("{0}".format(self.igra.matrika))
+                    else:
+
+                        if self.igra.na_vrsti == JAZ:
+                            self.JAZ.igraj()
+                        elif self.igra.na_vrsti == ON:
+                            self.ON.igraj()
+                        else:
+                            assert False
+
+                    #logging.debug("{0}".format(self.igra.matrika))
                     logging.debug("Ali je konec? {0}".format(self.igra.konec))
-                    
+
 
                 else:
                     self.napis.set("Neveljavna poteza!")
-        
-
+                    #rac naredi napacno potezo, poskusi seenkrat
+                    if self.igra.na_vrsti == JAZ:
+                            self.JAZ.igraj()
+                    elif self.igra.na_vrsti == ON:
+                        self.ON.igraj()
+                    else:
+                        assert False
 
     # Funkcija, ki shrani igro v datoteko.
     def shrani(self):
@@ -227,9 +274,6 @@ class crnobelo():
                 if self.igra.matrika[i][j][2] == "Crni":
                     self.canvas.create_oval(i * 100 + 60, j * 100 + 60, i * 100 + 140, j* 100 + 140, fill="black")
 
-
-
-
     # Funkcija, ki potezo zapise v matriko in hkrati doloci katere poteze so mogoce.
     def spremeni_matriko(self, x, y, n):
         self.igra.matrika[y][x][0] = False
@@ -263,49 +307,129 @@ class crnobelo():
         if self.ON:
             self.ON.prekini()
 
-######################################################################
-## Igralec minimax
+#####################################################################
+## Racunalnik
 
-class minimax():
-    def __init__(self, globina):
-        self.globina = globina
-        self.prekinitev = False # Če moramo končati.
-        self.igra = None # Opis igrice.
-        # poimenovanje? self.jaz = None #kateri igralec je na vrsti
-        self.poteza = None 
+class Racunalnik():
+    def __init__(self, CRNOBELO, algoritem):
+        self.CRNOBELO = CRNOBELO
+        self.algoritem = algoritem # Algoritem, ki izracuna potezo
+        self.mislec = None # Vlakno (thread), ki razmislja
+
+    def igraj(self):
+        """Igraj potezo, ki jo vrne algoritem."""
+        # Tu sprozimo vzporedno vlakno, ki racuna potezo. Ker tkinter ne deluje,
+        # ce vzporedno vlakno direktno uporablja tkinter (glej http://effbot.org/zone/tkinter-threads.htm),
+        # zadeve organiziramo takole:
+        # - pozenemo vlakno, ki poisce potezo
+        # - to vlakno nekam zapise potezo, ki jo je naslo
+        # - glavno vlakno, ki sme uporabljati tkinter, vsakih 100ms pogleda, ali
+        #   je ze bila najdena poteza (metoda preveri_potezo spodaj).
+        # Ta resitev je precej amaterska. Z resno knjiznico za GUI bi zadeve lahko
+        # naredili bolje (vlakno bi samo sporocilo GUI-ju, da je treba narediti potezo).
+
+        # Naredimo vlakno, ki mu podamo *kopijo* igre (da ne bo zmedel GUIja):
+        # logging.debug("Velikost: {0}".format(self.CRNOBELO.igra.kopija()))
+        l = self.CRNOBELO.velikost
+        self.mislec = threading.Thread(
+            target=lambda: self.algoritem.izracunaj_potezo(self.CRNOBELO.igra.kopija(self.CRNOBELO),l))
+
+        # Pozenemo vlakno:
+        self.mislec.start()
+
+        # Gremo preverjat, ali je bila najdena poteza:
+        self.CRNOBELO.canvas.after(100, self.preveri_potezo)
+
+    def preveri_potezo(self):
+        """Vsakih 100ms preveri, ali je algoritem ze izracunal potezo."""
+        if self.algoritem.poteza is not None:
+            # Algoritem je nasel potezo, povleci jo, ce ni bilo prekinitve
+            self.CRNOBELO.izberi(self.algoritem.poteza)
+            # Vzporedno vlakno ni vec aktivno, zato ga "pozabimo"
+            self.mislec = None
+        else:
+            # Algoritem se ni nasel poteze, preveri se enkrat cez 100ms
+            self.CRNOBELO.canvas.after(100, self.preveri_potezo)
 
     def prekini(self):
+        # To metodo klice GUI, ce je treba prekiniti razmisljanje.
+        if self.mislec:
+            logging.debug ("Prekinjamo {0}".format(self.mislec))
+            # Algoritmu sporocimo, da mora nehati z razmisljanjem
+            self.algoritem.prekini()
+            # Pocakamo, da se vlakno ustavi
+            self.mislec.join()
+            self.mislec = None
+
+    def klik(self, p):
+        # Racunalnik ignorira klike
         pass
 
-    def izracunaj_potezo(self):
-        pass
+######################################################################
+## Algoritem minimax
+
+class Minimax():
+    def __init__(self):
+        # Dodaj se globino.
+        self.prekiitev = False
+        self.igra = None
+        self.jaz = None
+        self.poteza = None
+
+    def prekini(self):
+        self.prekinitev = True
+
 
     def vrednost_pozicije(self):
         pass
 
     def minimax(self):
         pass
-    
 
+    def izracunaj_potezo(self, igra, velikost):
+        logging.debug("Igra minimax")
+        self.igra = igra
+        self.prekinitev = False
+        self.jaz = self.igra.na_vrsti
+        self.poteza = None
+        poteza = self.minimax(igra, velikost)
+
+        if not self.prekinitev:
+            # Potezo izvedemo v primeru, da nismo bili prekinjeni
+            self.poteza = poteza
+
+    def minimax(self, igra, velikost):
+        do_kdaj = False
+        while not do_kdaj:
+            x =  random.randint(0, (velikost) - 1)
+            y =  random.randint(0, (velikost) - 1)
+            logging.debug("{0},{1}".format(x,y))
+            do_kdaj = self.igra.dovoljeno(x,y)
+
+        return (x,y)
 
 ######################################################################
 ## Igralec alfabeta
 
 class alfabeta():
-    def __init__(self, globina):
+    def __init__(self, CRNOBELO):
         self.prekinitev = False
         self.igra = None
         self.poteza = None
-        self.globina = globina
-        
+        self.CRNOBELO = CRNOBELO
+
     def prekini(self):
         pass
 
     def alfabeta(self):
         pass
 
-
-    
+    def igraj(self):
+        logging.debug("Igra alfabeta")
+        x =  random.randint(0, (self.CRNOBELO.velikost) - 1)
+        y =  random.randint(0, (self.CRNOBELO.velikost) - 1)
+        logging.debug("{0},{1}".format(x,y))
+        self.CRNOBELO.izberi((x,y))
 
 ######################################################################
 ## Igralec clovek
@@ -319,6 +443,7 @@ class clovek():
         # cakamo, da bo uporanik kliknil na plosco. Ko se
         # bo to zgodilo, nas bo Gui obvestil preko metode
         # klik.
+        logging.debug("Igra clovek")
         pass
 
     def prekini(self):
@@ -326,20 +451,20 @@ class clovek():
         # Clovek jo lahko ignorira.
         pass
 
-    def klik(self, p):
+    def klik(self, event):
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
-        self.CRNOBELO.izberi(p)
+        x, y = (event.x - 50) // 100, (event.y - 50) // 100
+        self.CRNOBELO.izberi((x,y))
 
 ######################################################################
 ## Glavni program
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description="Igrica Crnobelo")
 
     parser.add_argument('--debug',
                         action='store_true',
-                        help='vklopi sporočila o dogajanju')
+                        help='vklopi sporocila o dogajanju')
 
     args = parser.parse_args()
 
