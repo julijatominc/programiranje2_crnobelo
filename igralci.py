@@ -32,9 +32,8 @@ class Racunalnik():
 
         # Naredimo vlakno, ki mu podamo *kopijo* igre (da ne bo zmedel GUIja):
         # logging.debug("Velikost: {0}".format(self.CRNOBELO.igra.kopija()))
-        l = self.CRNOBELO.velikost
         self.mislec = threading.Thread(
-            target=lambda: self.algoritem.izracunaj_potezo(self.CRNOBELO.igra.kopija(self.CRNOBELO),l))
+            target=lambda: self.algoritem.izracunaj_potezo(self.CRNOBELO.igra.kopija(self.CRNOBELO)))
 
         # Pozenemo vlakno:
         self.mislec.start()
@@ -86,27 +85,30 @@ class Minimax():
         pass
 
 
-    def izracunaj_potezo(self, igra, velikost):
+    def izracunaj_potezo(self, igra):
         logging.debug("Igra minimax")
         self.igra = igra
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        poteza, vrednost = self.minimax(igra, velikost)
+        poteza, vrednost = self.minimax()
 
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
             self.poteza = poteza
 
-    def minimax(self, igra, velikost):
+    def minimax(self):
         do_kdaj = False
         while not do_kdaj:
-            x =  random.randint(0, (velikost) - 1)
-            y =  random.randint(0, (velikost) - 1)
+            x =  random.randint(0, (len(self.igra.matrika)) - 1)
+            y =  random.randint(0, (len(self.igra.matrika)) - 1)
             logging.debug("{0},{1}".format(x,y))
             do_kdaj = self.igra.dovoljeno(x,y)
 
         return ((x,y), None)
+
+    def prestej_L(self):
+        pass
 
 ######################################################################
 ## Igralec alfabeta
@@ -127,23 +129,23 @@ class alfabeta():
         pass
 
 
-    def izracunaj_potezo(self, igra, velikost):
+    def izracunaj_potezo(self, igra):
         logging.debug("Igra alfabeta")
         self.igra = igra
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        poteza = self.alfabeta(igra, velikost)
+        poteza = self.alfabeta(igra)
 
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
             self.poteza = poteza
 
-    def alfabeta(self, igra, velikost):
+    def alfabeta(self, igra):
         do_kdaj = False
         while not do_kdaj:
-            x =  random.randint(0, (velikost) - 1)
-            y =  random.randint(0, (velikost) - 1)
+            x =  random.randint(0, (len(self.igra.matrika)) - 1)
+            y =  random.randint(0, (len(self.igra.matrika)) - 1)
             logging.debug("{0},{1}".format(x,y))
             do_kdaj = self.igra.dovoljeno(x,y)
 
