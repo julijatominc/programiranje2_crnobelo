@@ -9,8 +9,8 @@ import logging
 PRAZNO = 0
 JAZ = "Beli"
 ON = "Crni"
-VELIKOST = 5
-
+VELIKOST = 7
+GLOBINA = 5
 
 
 class crnobelo():
@@ -63,15 +63,15 @@ class crnobelo():
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
         settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(clovek(self), clovek(self), None))
-        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(clovek(self), Racunalnik(self, Minimax()), None))
+        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(clovek(self), Racunalnik(self, Minimax(GLOBINA)), None))
         settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(clovek(self), Racunalnik(self, alfabeta()), None))
-        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, alfabeta()), Racunalnik(self, Minimax()), None))
-        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax()), Racunalnik(self, Minimax()), None))
+        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, alfabeta()), Racunalnik(self, Minimax(GLOBINA)), None))
+        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA)), Racunalnik(self, Minimax(GLOBINA)), None))
         settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, alfabeta()), Racunalnik(self, alfabeta()), None))
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Dodatno", menu=settings_menu)
-        settings_menu.add_command(label="Debug")
+        #settings_menu.add_command(label="Debug")
         settings_menu.add_command(label="Pomoc")
 
         # logging.debug("Velikost: {0}.".format(self.velikost)),
@@ -138,55 +138,39 @@ class crnobelo():
         x = xy[0]
         y = xy[1]
         # Preveri, ce je konec igre. V primeru, da je konec, nocemo vec dogajanja na plosci.
-        logging.debug("Preverim, ce je konec igre.")
+        #logging.debug("Preverim, ce je konec igre.")
         if not self.igra.konec:
             self.napis.set("")
-            logging.debug("Preverim, ce je x, y na tabli.")
-            if x >= 0 and y >= 0 and x < self.velikost and y <self.velikost:
-                # Preveri, ce je poteza dovoljena.
-                logging.debug("Preverim, ce je poteza dovoljena.")
-                if self.igra.dovoljeno(x, y):
-                    logging.debug("Preverim, kdo je na vrsti.")
+            poteza = self.igra.povleci_potezo(xy)
+               
+            if poteza is None:
+                self.napis.set("Neveljavna poteza!")
+                if self.igra.na_vrsti == JAZ:
+                    self.JAZ.igraj()
+                elif self.igra.na_vrsti == ON:
+                    self.ON.igraj()
+                else:
+                    assert False
+            else:
+            
+                if self.igra.na_vrsti == ON:
+                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=crnobelo.TAG_KROG)
+                    
+                else:
+                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=crnobelo.TAG_KROG)
+
+                if self.igra.konec_igre():
+                    self.igra.konec = True
                     if self.igra.na_vrsti == JAZ:
-                        logging.debug("Na vrsti je jaz, spreminjam...")
-                        # Spremeni matriko, v kateri imamo zapisano katere poteze so mozne.
-                        self.spremeni_matriko(x, y, 1)
-                        # Na potezi je nasprotnik.
                         self.igra.na_vrsti = ON
-                        # Narise krog.
-                        self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=crnobelo.TAG_KROG)
                     else:
-                        logging.debug("Na vrsti je on, spreminjam")
-                        self.spremeni_matriko(x, y, 0)
                         self.igra.na_vrsti = JAZ
-                        self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=crnobelo.TAG_KROG)
-
-                    if self.igra.konec_igre():
-                        if self.igra.na_vrsti == JAZ:
-                            self.igra.na_vrsti = ON
-                        else:
-                            self.igra.na_vrsti = JAZ
-                        self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
-                        self.igra.konec = True
-
-                    else:
-
-                        if self.igra.na_vrsti == JAZ:
-                            self.JAZ.igraj()
-                        elif self.igra.na_vrsti == ON:
-                            self.ON.igraj()
-                        else:
-                            assert False
-
-                    #logging.debug("{0}".format(self.igra.matrika))
-                    logging.debug("Ali je konec? {0}".format(self.igra.konec))
-
+                    self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
 
                 else:
-                    self.napis.set("Neveljavna poteza!")
-                    #rac naredi napacno potezo, poskusi seenkrat
+
                     if self.igra.na_vrsti == JAZ:
-                            self.JAZ.igraj()
+                        self.JAZ.igraj()
                     elif self.igra.na_vrsti == ON:
                         self.ON.igraj()
                     else:
@@ -226,31 +210,7 @@ class crnobelo():
                 if self.igra.matrika[i][j][2] == "Crni":
                     self.canvas.create_oval(i * 100 + 60, j * 100 + 60, i * 100 + 140, j* 100 + 140, fill="black")
 
-    # Funkcija, ki potezo zapise v matriko in hkrati doloci katere poteze so mogoce.
-    def spremeni_matriko(self, x, y, n):
-        self.igra.matrika[y][x][0] = False
-        self.igra.matrika[y][x][1] = False
-        self.igra.matrika[y][x][2] = self.igra.na_vrsti
-
-        if y-1 >= 0:
-            self.igra.matrika[y-1][x][n] = False
-        else:
-            pass
-
-        try:
-            self.igra.matrika[y+1][x][n] = False
-        except:
-            pass
-
-        if x-1 >= 0:
-            self.igra.matrika[y][x-1][n] = False
-        else:
-            pass
-
-        try:
-            self.igra.matrika[y][x+1][n] = False
-        except:
-            pass
+    
 
     # Funkcija, ki prekine igralce
     def prekini_igralce(self):

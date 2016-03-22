@@ -71,12 +71,12 @@ class Racunalnik():
 ## Algoritem minimax
 
 class Minimax():
-    def __init__(self):
-        # Dodaj se globino.
+    def __init__(self, globina):
         self.prekiitev = False
         self.igra = None
         self.jaz = None
         self.poteza = None
+        self.globina = globina
 
     def prekini(self):
         self.prekinitev = True
@@ -92,7 +92,7 @@ class Minimax():
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        poteza = self.minimax(igra, velikost)
+        poteza, vrednost = self.minimax(igra, velikost)
 
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
@@ -106,7 +106,7 @@ class Minimax():
             logging.debug("{0},{1}".format(x,y))
             do_kdaj = self.igra.dovoljeno(x,y)
 
-        return (x,y)
+        return ((x,y), None)
 
 ######################################################################
 ## Igralec alfabeta
@@ -172,5 +172,6 @@ class clovek():
     def klik(self, event):
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
         x, y = (event.x - 50) // 100, (event.y - 50) // 100
-        self.CRNOBELO.izberi((x,y))
+        if x >= 0 and y >= 0 and x < self.velikost and y <self.velikost:
+            self.CRNOBELO.izberi((x,y))
 
