@@ -108,6 +108,11 @@ class Minimax():
         return ((x,y), None)
 
     def prestej_L(self):
+        stevilo = 0
+        sez_dovoljenih = self.igra.veljavne_poteze()
+        for i in sez_dovoljenih:
+            if self.igra.preveri_L(i):
+                stevilo += 1
         pass
 
 ######################################################################
@@ -174,6 +179,6 @@ class clovek():
     def klik(self, event):
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
         x, y = (event.x - 50) // 100, (event.y - 50) // 100
-        if x >= 0 and y >= 0 and x < self.velikost and y <self.velikost:
+        if x >= 0 and y >= 0 and x < self.CRNOBELO.velikost and y <self.CRNOBELO.velikost:
             self.CRNOBELO.izberi((x,y))
 
