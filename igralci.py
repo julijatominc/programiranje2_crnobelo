@@ -5,7 +5,7 @@ import logging
 import random
 import threading
 
-globina = 5
+globina = 2
 
 def nasprotnik(igralec):
     if igralec == BELI:
