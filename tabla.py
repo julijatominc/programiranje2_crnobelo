@@ -1,6 +1,4 @@
-from tkinter import*
-from crnobelo import*
-from igralci import*
+from igralci import *
 
 import logging
 import copy
@@ -9,20 +7,19 @@ import copy
 PRAZNO = 0
 JAZ = "Beli"
 ON = "Crni"
-VELIKOST = 5
 
 
 ## Igra
 
 class tabla():
-    def __init__(self, crnobelo):
-        # crnobelo rabimo, ker klicemo self.velikost
-        self.crnobelo = crnobelo
-        self.matrika = [[[True, True, None] for _ in range(self.crnobelo.velikost)] for _ in range(self.crnobelo.velikost)]
+    def __init__(self, velikost):
+        self.matrika = [[[True, True, None] for _ in range(velikost)] for _ in range(velikost)]
         self.na_vrsti = JAZ
-        self.konec = False
-        # logging.debug("Velikost(27): {0}.".format(self.crnobelo.velikost))
+        # logging.debug("Velikost(27): {0}.".format(velikost))
         self.zgodovina = []
+
+    def velikost(self):
+        return len(self.matrika)
 
     # Funkcija, ki preveri, ce je poteza dovoljena.
     def dovoljeno(self, x, y):
@@ -34,21 +31,17 @@ class tabla():
             return False
 
     # Funkcija,ki pove, ce je igre konec.
-    def konec_igre(self):
-        if not self.veljavne_poteze():
-            self.konec = True
-            return True
-        else:
-            return False
-
+    def je_konec(self):
+        return (len(self.veljavne_poteze()) == 0)
 
     # Funkcija, ki skopira tablo.
-    def kopija(self, CRNOBELO):
+    def kopija(self):
         logging.debug("Kopiram...")
-        k = tabla(CRNOBELO)
-        k.matrika = copy.deepcopy(self.matrika)
+        k = tabla(self.velikost())
+        for i in range(self.velikost()):
+            for j in range(self.velikost()):
+                k.matrika[i][j] = self.matrika[i][j]
         k.na_vrsti = self.na_vrsti
-        k.konec = self.konec
         return k
     
     # Shrani pozicijo v zgodovino.
@@ -63,8 +56,8 @@ class tabla():
     # Seznam veljavnih potez.
     def veljavne_poteze(self):
         poteze = []
-        for i in range(self.crnobelo.velikost):
-            for j in range(self.crnobelo.velikost):
+        for i in range(self.velikost()):
+            for j in range(self.velikost()):
                 if self.dovoljeno(j,i):
                     poteze.append((i,j))
         return poteze

@@ -92,14 +92,13 @@ class crnobelo():
             crni = clovek(self)
 
         logging.debug("Beli:{0}, Crni:{1}".format(beli,crni))
-        self.igra = tabla(self)
+        self.igra = tabla(self.velikost)
         self.nova_igra(beli, crni)
 
     # Funkcija, ki ustvari novo igro.
     def nova_igra(self, beli=None, crni=None, velikost=None):
         logging.debug("Nova igra")
         self.prekini_igralce()
-        self.igra.konec = False
 
         if  velikost:
             self.velikost = velikost
@@ -139,7 +138,7 @@ class crnobelo():
         y = xy[1]
         # Preveri, ce je konec igre. V primeru, da je konec, nocemo vec dogajanja na plosci.
         #logging.debug("Preverim, ce je konec igre.")
-        if not self.igra.konec:
+        if not self.igra.je_konec():
             self.napis.set("")
             poteza = self.igra.povleci_potezo(xy)
                
@@ -159,8 +158,7 @@ class crnobelo():
                 else:
                     self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=crnobelo.TAG_KROG)
 
-                if self.igra.konec_igre():
-                    self.igra.konec = True
+                if self.igra.je_konec():
                     if self.igra.na_vrsti == JAZ:
                         self.igra.na_vrsti = ON
                     else:

@@ -33,7 +33,7 @@ class Racunalnik():
         # Naredimo vlakno, ki mu podamo *kopijo* igre (da ne bo zmedel GUIja):
         # logging.debug("Velikost: {0}".format(self.CRNOBELO.igra.kopija()))
         self.mislec = threading.Thread(
-            target=lambda: self.algoritem.izracunaj_potezo(self.CRNOBELO.igra.kopija(self.CRNOBELO)))
+            target=lambda: self.algoritem.izracunaj_potezo(self.CRNOBELO.igra.kopija()))
 
         # Pozenemo vlakno:
         self.mislec.start()
