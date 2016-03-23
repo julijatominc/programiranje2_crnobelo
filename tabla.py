@@ -114,10 +114,20 @@ class tabla():
             return True
 
     def preveri_L(self, xy):
-        pass
+        stevilo_L = 0
         x, y = xy
         sez = [(x - 2, y - 1), (x - 2, y + 1),
                (x + 2, y - 1), (x + 2, y + 1),
                (x + 1, y - 2), (x - 1, y - 2),
                (x - 1, y + 2), (x + 1, y + 2)]
+
+        for (i,j) in sez:
+            try:
+                a = self.matrika[j][i]
+                if j >=0 and i >= 0 and a[2] == self.na_vrsti:
+                    stevilo_L += 1
+
+            except:
+                pass
         
+        return stevilo_L

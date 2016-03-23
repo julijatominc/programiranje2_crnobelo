@@ -9,7 +9,7 @@ import logging
 PRAZNO = 0
 JAZ = "Beli"
 ON = "Crni"
-VELIKOST = 7
+VELIKOST = 6
 GLOBINA = 5
 
 

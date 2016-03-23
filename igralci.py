@@ -109,11 +109,40 @@ class Minimax():
 
     def prestej_L(self):
         stevilo = 0
+        sez_L = []
         sez_dovoljenih = self.igra.veljavne_poteze()
         for i in sez_dovoljenih:
-            if self.igra.preveri_L(i):
-                stevilo += 1
-        pass
+            if self.igra.preveri_L(i) != 0:
+                sez_L.append((i, self.igra.preveri_l(i)))
+                stevilo += self.igra.preveri_l(i)
+
+        return stevilo
+
+    def prestej_zavzeta_polja(self):
+        steviloA = 0
+        steviloB = 0
+        a = self.igra.veljavne_poteze()
+        b = []
+        if self.igra.na_vrsti == JAZ:
+            self.igra.na_vrsti = ON
+            b = self.igra.veljavne_poteze()
+            self.igra.na_vrsti = JAZ
+        else:
+            self.igra.na_vrsti = JAZ
+            b = self.igra.veljavne_poteze()
+            self.igra.na_vrsti = ON
+
+        for i in a:
+            if i not in b:
+                steviloA += 1
+
+        for j in b:
+            if j not in a:
+                steviloB += 1
+
+        return (steviloA,steviloB)
+
+
 
 ######################################################################
 ## Igralec alfabeta
