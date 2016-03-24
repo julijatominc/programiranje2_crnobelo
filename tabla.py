@@ -1,20 +1,15 @@
-from igralci import *
+from Igralci import *
 
 import logging
 import copy
 
 
-PRAZNO = 0
-JAZ = "Beli"
-ON = "Crni"
-
-
 ## Igra
 
-class tabla():
+class Tabla():
     def __init__(self, velikost):
         self.matrika = [[[True, True, None] for _ in range(velikost)] for _ in range(velikost)]
-        self.na_vrsti = JAZ
+        self.na_vrsti = BELI
         # logging.debug("Velikost(27): {0}.".format(velikost))
         self.zgodovina = []
 
@@ -23,9 +18,9 @@ class tabla():
 
     # Funkcija, ki preveri, ce je poteza dovoljena.
     def dovoljeno(self, x, y):
-        if self.na_vrsti == JAZ and self.matrika[y][x][0]:
+        if self.na_vrsti == BELI and self.matrika[y][x][0]:
             return True
-        elif self.na_vrsti == ON and self.matrika[y][x][1]:
+        elif self.na_vrsti == CRNI and self.matrika[y][x][1]:
             return True
         else:
             return False
@@ -36,21 +31,25 @@ class tabla():
 
     # Funkcija, ki skopira tablo.
     def kopija(self):
-        logging.debug("Kopiram...")
-        k = tabla(self.velikost())
+        #logging.debug("Kopiram...")
+        k = Tabla(self.velikost())
         for i in range(self.velikost()):
             for j in range(self.velikost()):
-                k.matrika[i][j] = self.matrika[i][j]
+                k.matrika[i][j] = self.matrika[i][j][:]
         k.na_vrsti = self.na_vrsti
         return k
     
     # Shrani pozicijo v zgodovino.
     def shrani_pozicijo(self):
-       p = copy.deepcopy(self.matrika)
-       self.zgodovina.append((p, self.na_vrsti))
+        #logging.debug("Shranjujem pozicijo...")
+        p = copy.deepcopy(self.matrika)
+        self.zgodovina.append((p, self.na_vrsti))
+        #logging.debug("{0}".format(self.zgodovina))
 
     # Razveljavi potezo in se vrne v prejšnje stanje.
     def razveljavi(self):
+        #logging.debug("Razveljavljam...")
+        #logging.debug("{0}".format(self.zgodovina))
         (self.matrika, self.na_vrsti) = self.zgodovina.pop()
 
     # Seznam veljavnih potez.
@@ -59,7 +58,7 @@ class tabla():
         for i in range(self.velikost()):
             for j in range(self.velikost()):
                 if self.dovoljeno(j,i):
-                    poteze.append((i,j))
+                    poteze.append((j,i))
         return poteze
 
     
@@ -87,7 +86,9 @@ class tabla():
         try:
             self.matrika[y][x+1][n] = False
         except:
-            pass 
+            pass
+
+        #logging.debug("{0}".format(self.matrika))
 
     def povleci_potezo(self, p):
         (x, y) = p
@@ -97,12 +98,12 @@ class tabla():
 
         else:
             self.shrani_pozicijo()
-            if self.na_vrsti == JAZ:
+            if self.na_vrsti == BELI:
                 self.spremeni_matriko(x, y, 1)
-                self.na_vrsti = ON
+                self.na_vrsti = CRNI
             else:
                 self.spremeni_matriko(x, y, 0)
-                self.na_vrsti = JAZ
+                self.na_vrsti = BELI
             
             return True
 

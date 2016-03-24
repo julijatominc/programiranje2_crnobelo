@@ -1,20 +1,26 @@
 from tkinter import*
-from tabla import*
-from crnobelo import*
+from Crnobelo import*
 
 import logging
 import random
 import threading
 
+globina = 5
 
-
+def nasprotnik(igralec):
+    if igralec == BELI:
+        return CRNI
+    elif igralec == CRNI:
+        return BELI
+    else:
+        assert False, "neveljaven nasprotnik"
 
 #####################################################################
 ## Racunalnik
 
 class Racunalnik():
-    def __init__(self, CRNOBELO, algoritem):
-        self.CRNOBELO = CRNOBELO
+    def __init__(self, Crnobelo, algoritem):
+        self.Crnobelo = Crnobelo
         self.algoritem = algoritem # Algoritem, ki izracuna potezo
         self.mislec = None # Vlakno (thread), ki razmislja
 
@@ -31,26 +37,28 @@ class Racunalnik():
         # naredili bolje (vlakno bi samo sporocilo GUI-ju, da je treba narediti potezo).
 
         # Naredimo vlakno, ki mu podamo *kopijo* igre (da ne bo zmedel GUIja):
-        # logging.debug("Velikost: {0}".format(self.CRNOBELO.igra.kopija()))
+        # logging.debug("Velikost: {0}".format(self.Crnobelo.igra.kopija()))
         self.mislec = threading.Thread(
-            target=lambda: self.algoritem.izracunaj_potezo(self.CRNOBELO.igra.kopija()))
+            target=lambda: self.algoritem.izracunaj_potezo(self.Crnobelo.igra.kopija()))
 
         # Pozenemo vlakno:
         self.mislec.start()
 
         # Gremo preverjat, ali je bila najdena poteza:
-        self.CRNOBELO.canvas.after(100, self.preveri_potezo)
+        self.Crnobelo.canvas.after(100, self.preveri_potezo)
 
     def preveri_potezo(self):
         """Vsakih 100ms preveri, ali je algoritem ze izracunal potezo."""
         if self.algoritem.poteza is not None:
             # Algoritem je nasel potezo, povleci jo, ce ni bilo prekinitve
-            self.CRNOBELO.izberi(self.algoritem.poteza)
+            self.Crnobelo.izberi(self.algoritem.poteza)
+            #logging.debug("{0}".format(self.Crnobelo.igra.zgodovina))
+            #logging.debug("{0}".format(self.Crnobelo.igra.matrika))
             # Vzporedno vlakno ni vec aktivno, zato ga "pozabimo"
             self.mislec = None
         else:
             # Algoritem se ni nasel poteze, preveri se enkrat cez 100ms
-            self.CRNOBELO.canvas.after(100, self.preveri_potezo)
+            self.Crnobelo.canvas.after(100, self.preveri_potezo)
 
     def prekini(self):
         # To metodo klice GUI, ce je treba prekiniti razmisljanje.
@@ -77,12 +85,31 @@ class Minimax():
         self.poteza = None
         self.globina = globina
 
+
+    ZMAGA = 10000
+    VREDNOST_1 = ZMAGA//20
+    VREDNOST_2 = ZMAGA//200
+    VREDNOST_3 = ZMAGA//2000
+    VREDNOST_4 = 0
+    NESKONCNO = ZMAGA + 1
+
+
     def prekini(self):
         self.prekinitev = True
 
-
     def vrednost_pozicije(self):
-        pass
+        ocena = 0
+        for i in self.igra.veljavne_poteze():
+            ocena += self.tip_polja(i)
+
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        for i in self.igra.veljavne_poteze():
+            ocena -= self.tip_polja(i)
+
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        return ocena
 
 
     def izracunaj_potezo(self, igra):
@@ -91,21 +118,73 @@ class Minimax():
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        poteza, vrednost = self.minimax()
+        (poteza, vrednost) = self.minimax(self.globina, True)
+        self.jaz = None
+        self.igra = None
 
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
             self.poteza = poteza
 
-    def minimax(self):
-        do_kdaj = False
-        while not do_kdaj:
-            x =  random.randint(0, (len(self.igra.matrika)) - 1)
-            y =  random.randint(0, (len(self.igra.matrika)) - 1)
-            logging.debug("{0},{1}".format(x,y))
-            do_kdaj = self.igra.dovoljeno(x,y)
+    def minimax(self, globina,  maksimiziramo):
 
-        return ((x,y), None)
+        """Glavna metoda minimax."""
+        if self.prekinitev:
+            # Sporocili so nam, da moramo prekiniti
+            logging.debug ("Minimax prekinja, globina = {0}".format(globina))
+            return (None, 0)
+
+        if self.igra.je_konec():
+            if self.igra.na_vrsti == self.jaz:
+                return (None, -Minimax.ZMAGA)
+            elif self.igra.na_vrsti == nasprotnik(self.jaz):
+                return (None, Minimax.ZMAGA)
+            else:
+                assert False, "Napaka v koncu igre v Minimaxu."
+
+        else:
+            #logging.debug("Sm v minimaxu...")
+            if globina == 0:
+                return (None, self.vrednost_pozicije())
+            else:
+                #logging.debug("Globina ni 0...")
+                # Naredimo eno stopnjo minimax
+                if maksimiziramo:
+                    #logging.debug("Je maksimiziramo...")
+                    # Maksimiziramo
+                    najboljsa_poteza = None
+                    vrednost_najboljse = -Minimax.NESKONCNO
+                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+                    for p in self.igra.veljavne_poteze():
+                        #logging.debug("Sem v for zanki...")
+                        self.igra.povleci_potezo(p)
+                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                        #logging.debug("Zdej bom razveljavu...")
+                        #logging.debug("{0}".format(self.igra.zgodovina))
+                        self.igra.razveljavi()
+                        if vrednost > vrednost_najboljse:
+                            vrednost_najboljse = vrednost
+                            najboljsa_poteza = p
+                else:
+                    #logging.debug("Ni maksimiziramo...")
+                    # Minimiziramo
+                    najboljsa_poteza = None
+                    vrednost_najboljse = Minimax.NESKONCNO
+                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+                    for p in self.igra.veljavne_poteze():
+                        self.igra.povleci_potezo(p)
+                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                        #logging.debug("Zdej bom razveljavu...")
+                        #logging.debug("{0}".format(self.igra.zgodovina))
+                        self.igra.razveljavi()
+                        if vrednost < vrednost_najboljse:
+                            vrednost_najboljse = vrednost
+                            najboljsa_poteza = p
+
+                assert (najboljsa_poteza is not None), "minimax: izracunana poteza je None"
+                return (najboljsa_poteza, vrednost_najboljse)
+
+
 
     def prestej_L(self):
         stevilo = 0
@@ -118,36 +197,48 @@ class Minimax():
 
         return stevilo
 
-    def prestej_zavzeta_polja(self):
-        steviloA = 0
-        steviloB = 0
+    def sez_sosedov(self, xy):
+        x, y = xy
+        sez = []
+        sez_polj = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+        for (i, j) in sez_polj:
+            if i >= 0 and j >= 0 and  self.igra.velikost() > i and self.igra.velikost() > j:
+                sez.append((i,j))
+
+        return sez
+
+    def tip_polja(self, xy):
+        sosedi = self.sez_sosedov(xy)
         a = self.igra.veljavne_poteze()
-        b = []
-        if self.igra.na_vrsti == JAZ:
-            self.igra.na_vrsti = ON
-            b = self.igra.veljavne_poteze()
-            self.igra.na_vrsti = JAZ
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+        b = self.igra.veljavne_poteze()
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        c = True
+        for i in sosedi:
+            if i in b:
+                c = False
+
+        #Polje tipa 1. Polje smo zavzeli mi.
+        if xy in a and xy not in b and c:
+            return Minimax.VREDNOST_1
+        #Polje nam lahko odzame.
+        elif xy in a and xy not in b:
+            return Minimax.VREDNOST_2
+        #Polje je prosto.
+        elif xy in a and xy in b:
+            return Minimax.VREDNOST_3
+        #Polje je neveljavno.
         else:
-            self.igra.na_vrsti = JAZ
-            b = self.igra.veljavne_poteze()
-            self.igra.na_vrsti = ON
+            return Minimax.VREDNOST_4
 
-        for i in a:
-            if i not in b:
-                steviloA += 1
-
-        for j in b:
-            if j not in a:
-                steviloB += 1
-
-        return (steviloA,steviloB)
 
 
 
 ######################################################################
 ## Igralec alfabeta
 
-class alfabeta():
+class Alfabeta():
     def __init__(self):
         # Dodaj se globino.
         self.prekiitev = False
@@ -178,8 +269,8 @@ class alfabeta():
     def alfabeta(self, igra):
         do_kdaj = False
         while not do_kdaj:
-            x =  random.randint(0, (len(self.igra.matrika)) - 1)
-            y =  random.randint(0, (len(self.igra.matrika)) - 1)
+            x =  random.randint(0, (self.igra.velikost()) - 1)
+            y =  random.randint(0, (self.igra.velikost()) - 1)
             logging.debug("{0},{1}".format(x,y))
             do_kdaj = self.igra.dovoljeno(x,y)
 
@@ -188,9 +279,9 @@ class alfabeta():
 ######################################################################
 ## Igralec clovek
 
-class clovek():
-    def __init__(self, CRNOBELO):
-        self.CRNOBELO = CRNOBELO
+class Clovek():
+    def __init__(self, Crnobelo):
+        self.Crnobelo = Crnobelo
 
     def igraj(self):
         # Smo na potezi. Zaenkrat ne naredimo nic, ampak
@@ -198,6 +289,7 @@ class clovek():
         # bo to zgodilo, nas bo Gui obvestil preko metode
         # klik.
         logging.debug("Igra clovek")
+        logging.debug("{0}".format(self.Crnobelo.igra.matrika))
         pass
 
     def prekini(self):
@@ -206,8 +298,9 @@ class clovek():
         pass
 
     def klik(self, event):
+
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
         x, y = (event.x - 50) // 100, (event.y - 50) // 100
-        if x >= 0 and y >= 0 and x < self.CRNOBELO.velikost and y <self.CRNOBELO.velikost:
-            self.CRNOBELO.izberi((x,y))
+        if x >= 0 and y >= 0 and x < self.Crnobelo.velikost and y <self.Crnobelo.velikost:
+            self.Crnobelo.izberi((x,y))
 

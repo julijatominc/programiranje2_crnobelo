@@ -1,26 +1,26 @@
 from tkinter import*
-from tabla import*
-from igralci import*
+from Tabla import*
+from Igralci import*
 import ast
 import argparse
 import logging
 
 
-PRAZNO = 0
-JAZ = "Beli"
-ON = "Crni"
+
+BELI = "Beli"
+CRNI = "Crni"
 VELIKOST = 6
-GLOBINA = 5
+GLOBINA = 2
 
 
-class crnobelo():
+class Crnobelo():
     # Ustvarimo tag, da se bomo lahko kasneje sklicevali.
     TAG_KROG = 'krog'
 
 
     def __init__(self, master, velikost=VELIKOST):
-        self.JAZ = None
-        self.ON = None
+        self.BELI = None
+        self.CRNI = None
         self.igra = None
 
         # Ustvarimo napis, ki nas obvesca o dogajanju.
@@ -62,12 +62,12 @@ class crnobelo():
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
-        settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(clovek(self), clovek(self), None))
-        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(clovek(self), Racunalnik(self, Minimax(GLOBINA)), None))
-        settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(clovek(self), Racunalnik(self, alfabeta()), None))
-        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, alfabeta()), Racunalnik(self, Minimax(GLOBINA)), None))
+        settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(Clovek(self), Clovek(self), None))
+        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(GLOBINA)), None))
+        settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta()), None))
+        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Minimax(GLOBINA)), None))
         settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA)), Racunalnik(self, Minimax(GLOBINA)), None))
-        settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, alfabeta()), Racunalnik(self, alfabeta()), None))
+        settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Alfabeta()), None))
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Dodatno", menu=settings_menu)
@@ -87,12 +87,12 @@ class crnobelo():
     # Funkcija, ki zacne igro.
     def zacni_igro(self, beli=None, crni=None):
         if not beli:
-            beli = clovek(self)
+            beli = Clovek(self)
         if not crni:
-            crni = clovek(self)
+            crni = Clovek(self)
 
         logging.debug("Beli:{0}, Crni:{1}".format(beli,crni))
-        self.igra = tabla(self.velikost)
+        self.igra = Tabla(self.velikost)
         self.nova_igra(beli, crni)
 
     # Funkcija, ki ustvari novo igro.
@@ -105,30 +105,30 @@ class crnobelo():
             self.canvas.delete("all")
             self.narisi()
         else:
-            self.canvas.delete(crnobelo.TAG_KROG)
+            self.canvas.delete(Crnobelo.TAG_KROG)
 
         if beli and crni:
-            self.JAZ = beli
-            self.ON = crni
+            self.BELI = beli
+            self.CRNI = crni
 
         # logging.debug("Velikost: {0}.".format(self.velikost))
 
         self.igra.matrika = [[[True, True, None] for _ in  range(self.velikost)] for _ in range(self.velikost)]
         self.napis.set("")
-        self.igra.na_vrsti = JAZ
+        self.igra.na_vrsti = BELI
         logging.debug("Na vrsti:{0}".format(self.igra.na_vrsti))
 
-        logging.debug("Beli: {0}, Crni: {1}".format(self.JAZ, self.ON))
+        logging.debug("Beli: {0}, Crni: {1}".format(self.BELI, self.CRNI))
         
         
-        self.JAZ.igraj()
+        self.BELI.igraj()
 
     # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo
     def plosca_klik(self, event):
-        if self.igra.na_vrsti == JAZ:
-            self.JAZ.klik(event)
-        elif self.igra.na_vrsti == ON:
-            self.ON.klik(event)
+        if self.igra.na_vrsti == BELI:
+            self.BELI.klik(event)
+        elif self.igra.na_vrsti == CRNI:
+            self.CRNI.klik(event)
         else:
             pass
 
@@ -144,35 +144,34 @@ class crnobelo():
                
             if poteza is None:
                 self.napis.set("Neveljavna poteza!")
-                if self.igra.na_vrsti == JAZ:
-                    self.JAZ.igraj()
-                elif self.igra.na_vrsti == ON:
-                    self.ON.igraj()
+                if self.igra.na_vrsti == BELI:
+                    self.BELI.igraj()
+                elif self.igra.na_vrsti == CRNI:
+                    self.CRNI.igraj()
                 else:
                     assert False
             else:
             
-                if self.igra.na_vrsti == ON:
-                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=crnobelo.TAG_KROG)
+                if self.igra.na_vrsti == CRNI:
+                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=Crnobelo.TAG_KROG)
                     
                 else:
-                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=crnobelo.TAG_KROG)
+                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=Crnobelo.TAG_KROG)
 
                 if self.igra.je_konec():
-                    if self.igra.na_vrsti == JAZ:
-                        self.igra.na_vrsti = ON
-                    else:
-                        self.igra.na_vrsti = JAZ
+                    self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
                     self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
 
                 else:
 
-                    if self.igra.na_vrsti == JAZ:
-                        self.JAZ.igraj()
-                    elif self.igra.na_vrsti == ON:
-                        self.ON.igraj()
+                    if self.igra.na_vrsti == BELI:
+                        self.BELI.igraj()
+                    elif self.igra.na_vrsti == CRNI:
+                        self.CRNI.igraj()
                     else:
                         assert False
+
+        #logging.debug("{0}".format(self.igra.veljavne_poteze()))
 
     # Funkcija, ki shrani igro v datoteko.
     def shrani(self):
@@ -198,8 +197,8 @@ class crnobelo():
         self.nova_igra(velikost)
 
         if KDO == "Beli":
-            self.igra.na_vrsti = JAZ
-        else: self.igra.na_vrsti = ON
+            self.igra.na_vrsti = BELI
+        else: self.igra.na_vrsti = CRNI
 
         for i in range(self.velikost):
             for j in range(self.velikost):
@@ -212,10 +211,10 @@ class crnobelo():
 
     # Funkcija, ki prekine igralce
     def prekini_igralce(self):
-        if self.JAZ:
-            self.JAZ.prekini()
-        if self.ON:
-            self.ON.prekini()
+        if self.BELI:
+            self.BELI.prekini()
+        if self.CRNI:
+            self.CRNI.prekini()
 
 ######################################################################
 ## Glavni program
@@ -236,7 +235,7 @@ if __name__ == "__main__":
     root = Tk()
     root.title("Crnobelo")
     # Naredimo objekt razreda Gui in ga spravimo v spremenljivko,
-    aplikacija = crnobelo(root)
+    aplikacija = Crnobelo(root)
     # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha
     # delovati, ko okno zapremo.
     root.mainloop()
