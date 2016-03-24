@@ -32,9 +32,10 @@ class Tabla():
     # Funkcija, ki skopira tablo.
     def kopija(self):
         #logging.debug("Kopiram...")
-        k = Tabla(self.velikost())
-        for i in range(self.velikost()):
-            for j in range(self.velikost()):
+        velikost = self.velikost()
+        k = Tabla(velikost)
+        for i in range(velikost):
+            for j in range(velikost):
                 k.matrika[i][j] = self.matrika[i][j][:]
         k.na_vrsti = self.na_vrsti
         return k
@@ -54,9 +55,10 @@ class Tabla():
 
     # Seznam veljavnih potez.
     def veljavne_poteze(self):
+        velikost = self.velikost()
         poteze = []
-        for i in range(self.velikost()):
-            for j in range(self.velikost()):
+        for i in range(velikost):
+            for j in range(velikost):
                 if self.dovoljeno(j,i):
                     poteze.append((j,i))
         return poteze
@@ -90,6 +92,7 @@ class Tabla():
 
         #logging.debug("{0}".format(self.matrika))
 
+    #Funkcija shrani potezo v matriko
     def povleci_potezo(self, p):
         (x, y) = p
 
@@ -107,21 +110,3 @@ class Tabla():
             
             return True
 
-    def preveri_L(self, xy):
-        stevilo_L = 0
-        x, y = xy
-        sez = [(x - 2, y - 1), (x - 2, y + 1),
-               (x + 2, y - 1), (x + 2, y + 1),
-               (x + 1, y - 2), (x - 1, y - 2),
-               (x - 1, y + 2), (x + 1, y + 2)]
-
-        for (i,j) in sez:
-            try:
-                a = self.matrika[j][i]
-                if j >=0 and i >= 0 and a[2] == self.na_vrsti:
-                    stevilo_L += 1
-
-            except:
-                pass
-        
-        return stevilo_L

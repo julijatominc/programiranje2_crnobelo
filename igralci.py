@@ -5,7 +5,9 @@ import logging
 import random
 import threading
 
-globina = 5
+GLOBINA = 2
+
+SLOVAR_SOSEDOV = {}
 
 def nasprotnik(igralec):
     if igralec == BELI:
@@ -97,6 +99,7 @@ class Minimax():
     def prekini(self):
         self.prekinitev = True
 
+    #Izracuna vrednost pozicije
     def vrednost_pozicije(self):
         ocena = 0
         for i in self.igra.veljavne_poteze():
@@ -186,27 +189,21 @@ class Minimax():
 
 
 
-    def prestej_L(self):
-        stevilo = 0
-        sez_L = []
-        sez_dovoljenih = self.igra.veljavne_poteze()
-        for i in sez_dovoljenih:
-            if self.igra.preveri_L(i) != 0:
-                sez_L.append((i, self.igra.preveri_l(i)))
-                stevilo += self.igra.preveri_l(i)
-
-        return stevilo
-
+    #Ustvari seznam sosedov xy
     def sez_sosedov(self, xy):
-        x, y = xy
-        sez = []
-        sez_polj = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-        for (i, j) in sez_polj:
-            if i >= 0 and j >= 0 and  self.igra.velikost() > i and self.igra.velikost() > j:
-                sez.append((i,j))
+        if xy in SLOVAR_SOSEDOV:
+            return SLOVAR_SOSEDOV[xy]
+        else:
+            x, y = xy
+            sez = []
+            sez_polj = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+            for (i, j) in sez_polj:
+                if i >= 0 and j >= 0 and  self.igra.velikost() > i and self.igra.velikost() > j:
+                    sez.append((i,j))
+            SLOVAR_SOSEDOV[xy] = sez
+            return sez
 
-        return sez
-
+    #Funkcija vrne vrednost polja
     def tip_polja(self, xy):
         sosedi = self.sez_sosedov(xy)
         a = self.igra.veljavne_poteze()
@@ -218,6 +215,7 @@ class Minimax():
         for i in sosedi:
             if i in b:
                 c = False
+                break
 
         #Polje tipa 1. Polje smo zavzeli mi.
         if xy in a and xy not in b and c:
