@@ -4,7 +4,7 @@ from Igralci import*
 import ast
 import argparse
 import logging
-
+import winsound
 
 
 BELI = "Beli"
@@ -23,6 +23,7 @@ class Crnobelo():
         self.BELI = None
         self.CRNI = None
         self.igra = None
+        self.zvocnik = True
 
         # Ustvarimo napis, ki nas obvesca o dogajanju.
         self.napis = StringVar()
@@ -72,8 +73,11 @@ class Crnobelo():
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Dodatno", menu=settings_menu)
-        #settings_menu.add_command(label="Debug")
-        settings_menu.add_command(label="Pomoc")
+        settings_menu.add_command(label="Vklopi zvok", command = lambda: self.zvok(True))
+        settings_menu.add_command(label="Izklopi zvok", command = lambda: self.zvok(False))
+
+
+        menu.add_command(label="Pomoc")
 
         # logging.debug("Velikost: {0}.".format(self.velikost)),
         self.zacni_igro()
@@ -159,10 +163,15 @@ class Crnobelo():
                 else:
                     self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=Crnobelo.TAG_KROG)
 
+                if self.zvocnik:
+                    winsound.Beep(150, 75)
+
                 if self.igra.je_konec():
                     self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
                     self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
-
+                    if self.zvocnik:
+                        winsound.Beep(500, 150)
+                        #winsound.PlaySound("tara", winsound.SND_ALIAS)
                 else:
 
                     if self.igra.na_vrsti == BELI:
@@ -219,7 +228,10 @@ class Crnobelo():
                 if self.igra.matrika[i][j][2] == "Crni":
                     self.canvas.create_oval(i * 100 + 60, j * 100 + 60, i * 100 + 140, j* 100 + 140, fill="black")
 
-    
+    def zvok(self, bool):
+        if not bool:
+            self.zvocnik = False
+
 
     # Funkcija, ki prekine igralce
     def prekini_igralce(self):
