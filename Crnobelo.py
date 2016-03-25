@@ -10,7 +10,7 @@ import winsound
 BELI = "Beli"
 CRNI = "Crni"
 VELIKOST = 6
-GLOBINA = 2
+GLOBINA = 3
 
 
 class Crnobelo():
@@ -67,7 +67,7 @@ class Crnobelo():
         settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(Clovek(self), Clovek(self), None))
         settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(GLOBINA)), None))
         settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta()), None))
-        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Minimax(GLOBINA)), None))
+        settings_menu.add_command(label="RacunalnikAB-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Minimax(GLOBINA)), None))
         settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA)), Racunalnik(self, Minimax(GLOBINA)), None))
         settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Alfabeta()), None))
 

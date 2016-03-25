@@ -5,7 +5,7 @@ import logging
 import random
 import threading
 
-GLOBINA = 2
+
 
 SLOVAR_SOSEDOV = {}
 
@@ -111,6 +111,9 @@ class Minimax():
             ocena -= self.tip_polja(i)
 
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        if self.globina % 2 == 1:
+            ocena = -ocena
 
         return ocena
 
