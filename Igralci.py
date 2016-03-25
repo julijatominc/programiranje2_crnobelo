@@ -286,6 +286,7 @@ class Clovek():
         # cakamo, da bo uporanik kliknil na plosco. Ko se
         # bo to zgodilo, nas bo Gui obvestil preko metode
         # klik.
+        self.Crnobelo.pobarvaj_poteze()
         logging.debug("Igra clovek")
         logging.debug("{0}".format(self.Crnobelo.igra.matrika))
         pass
@@ -298,7 +299,9 @@ class Clovek():
     def klik(self, event):
 
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
+
         x, y = (event.x - 50) // 100, (event.y - 50) // 100
         if x >= 0 and y >= 0 and x < self.Crnobelo.velikost and y <self.Crnobelo.velikost:
+            self.Crnobelo.pobrisi_poteze()        
             self.Crnobelo.izberi((x,y))
 

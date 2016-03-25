@@ -16,6 +16,7 @@ GLOBINA = 2
 class Crnobelo():
     # Ustvarimo tag, da se bomo lahko kasneje sklicevali.
     TAG_KROG = 'krog'
+    TAG_POTEZA = 'poteza'
 
 
     def __init__(self, master, velikost=VELIKOST):
@@ -172,6 +173,17 @@ class Crnobelo():
                         assert False
 
         #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
+    # Na canvasu pobarva veljavne poteze    
+    def pobarvaj_poteze(self):
+        poteze = self.igra.veljavne_poteze()
+        for i in poteze:
+            x, y = i
+            self.canvas.create_rectangle(x * 100 + 50, y * 100 + 50, x * 100 + 150, y * 100 + 150, fill="grey85", tag=Crnobelo.TAG_POTEZA)
+
+    # Pobrise veljave poteze
+    def pobrisi_poteze(self):
+        self.canvas.delete(Crnobelo.TAG_POTEZA)
 
     # Funkcija, ki shrani igro v datoteko.
     def shrani(self):
