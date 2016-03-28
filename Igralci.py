@@ -418,42 +418,42 @@ class Alfabeta():
 #####################################################################
 ## Igralec naklucje
 
-##class Nakljucje():
-##    # Dodaj se globino.
-##        self.prekiitev = False
-##        self.igra = None
-##        self.jaz = None
-##        self.poteza = None
-##
-##    def prekini(self):
-##        self.prekinitev = True
-##
-##
-##    def vrednost_pozicije(self):
-##        pass
-##
-##
-##    def izracunaj_potezo(self, igra):
-##        logging.debug("Igra random")
-##        self.igra = igra
-##        self.prekinitev = False
-##        self.jaz = self.igra.na_vrsti
-##        self.poteza = None
-##        poteza = self.nakljucje(igra)
-##
-##        if not self.prekinitev:
-##            # Potezo izvedemo v primeru, da nismo bili prekinjeni
-##            self.poteza = poteza
-##
-##    def naklucje(self, igra):
-##        do_kdaj = False
-##        while not do_kdaj:
-##            x =  random.randint(0, (self.igra.velikost()) - 1)
-##            y =  random.randint(0, (self.igra.velikost()) - 1)
-##            logging.debug("{0},{1}".format(x,y))
-##            do_kdaj = self.igra.dovoljeno(x,y)
-##
-##        return (x,y)
+class Nakljucje():
+    def __init__(self):
+        self.prekiitev = False
+        self.igra = None
+        self.jaz = None
+        self.poteza = None
+
+    def prekini(self):
+        self.prekinitev = True
+
+
+    def vrednost_pozicije(self):
+        pass
+
+
+    def izracunaj_potezo(self, igra):
+        logging.debug("Igra random")
+        self.igra = igra
+        self.prekinitev = False
+        self.jaz = self.igra.na_vrsti
+        self.poteza = None
+        poteza = self.nakljucje(igra)
+
+        if not self.prekinitev:
+            # Potezo izvedemo v primeru, da nismo bili prekinjeni
+            self.poteza = poteza
+
+    def nakljucje(self, igra):
+        do_kdaj = False
+        while not do_kdaj:
+            x =  random.randint(0, (self.igra.velikost()) - 1)
+            y =  random.randint(0, (self.igra.velikost()) - 1)
+            logging.debug("{0},{1}".format(x,y))
+            do_kdaj = self.igra.dovoljeno(x,y)
+
+        return (x,y)
 
 ######################################################################
 ## Igralec clovek

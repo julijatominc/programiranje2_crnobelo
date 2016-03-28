@@ -10,7 +10,8 @@ import winsound
 BELI = "Beli"
 CRNI = "Crni"
 VELIKOST = 6
-GLOBINA = 3
+MINIMAX_GLOBINA = 3
+ALFABETA_GLOBINA = 4
 
 
 class Crnobelo():
@@ -29,10 +30,13 @@ class Crnobelo():
         self.napis = StringVar()
         Label(master, textvariable=self.napis).grid(row=0, column=0)
 
+        self.napis2 = StringVar()
+        Label(master, textvariable=self.napis2).grid(row=1, column=0)
+        
         # Definira vrednosti.
         self.velikost = velikost
         self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1))
-        self.canvas.grid(row=1, column=0)
+        self.canvas.grid(row=2, column=0)
 
         # Na canvas narise zacetno polje.
         self.narisi()
@@ -44,6 +48,7 @@ class Crnobelo():
         # Glavni menu.
         menu = Menu(master)
         master.config(menu=menu)
+        # Dodamo gumb za namig
 
         # Dodamo moznosti v menu.
         file_menu = Menu(menu)
@@ -64,17 +69,18 @@ class Crnobelo():
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
-        settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(Clovek(self), Clovek(self), None))
-        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(GLOBINA - 1)), None))
-        settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta(GLOBINA)), None))
-        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA - 1)), Racunalnik(self, Alfabeta(GLOBINA)), None))
-        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA - 1)), Racunalnik(self, Minimax(GLOBINA - 1)), None))
-        settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(GLOBINA)), Racunalnik(self, Alfabeta(GLOBINA)), None))
+        settings_menu.add_command(label="Clovek - Clovek", command= lambda: self.nova_igra(Clovek(self), Clovek(self), None))
+        settings_menu.add_command(label="Clovek - Random", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Nakljucje()), None))
+        settings_menu.add_command(label="Clovek - Racunalnik Minimax", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(GLOBINA )), None))
+        settings_menu.add_command(label="Clovek - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta(GLOBINA)), None))
+        settings_menu.add_command(label="Racunalnik Minimax - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA)), Racunalnik(self, Alfabeta(GLOBINA)), None))
+        settings_menu.add_command(label="Racunalnik Alfa-beta - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(GLOBINA)), Racunalnik(self, Alfabeta(GLOBINA)), None))
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Dodatno", menu=settings_menu)
         settings_menu.add_command(label="Vklopi zvok", command = lambda: self.zvok(True))
         settings_menu.add_command(label="Izklopi zvok", command = lambda: self.zvok(False))
+        settings_menu.add_command(label="Vzami nazaj", command = self.vzami_nazaj())
 
 
         menu.add_command(label="Pomoc")
@@ -117,6 +123,9 @@ class Crnobelo():
             self.BELI = beli
             self.CRNI = crni
 
+        else:
+            self.BELI, self.CRNI = self.CRNI, self.BELI
+
         # logging.debug("Velikost: {0}.".format(self.velikost))
 
         self.igra.matrika = [[[True, True, None] for _ in  range(self.velikost)] for _ in range(self.velikost)]
@@ -126,6 +135,7 @@ class Crnobelo():
 
         logging.debug("Beli: {0}, Crni: {1}".format(self.BELI, self.CRNI))
         
+        self.napis2.set("Na vrsti je beli.")
         
         self.BELI.igraj()
 
@@ -145,8 +155,10 @@ class Crnobelo():
         # Preveri, ce je konec igre. V primeru, da je konec, nocemo vec dogajanja na plosci.
         #logging.debug("Preverim, ce je konec igre.")
         if not self.igra.je_konec():
+            
             self.napis.set("")
             poteza = self.igra.povleci_potezo(xy)
+            
                
             if poteza is None:
                 self.napis.set("Neveljavna poteza!")
@@ -160,15 +172,19 @@ class Crnobelo():
             
                 if self.igra.na_vrsti == CRNI:
                     self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=Crnobelo.TAG_KROG)
+                    self.napis2.set("Na vrsti je crni.")
+                    
                     
                 else:
                     self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=Crnobelo.TAG_KROG)
+                    self.napis2.set("Na vrsti je beli.")
 
                 if self.zvocnik:
                     winsound.Beep(150, 75)
 
                 if self.igra.je_konec():
                     self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+                    self.napis2.set("")
                     self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
                     if self.zvocnik:
                         winsound.Beep(500, 150)
@@ -241,6 +257,10 @@ class Crnobelo():
         if self.CRNI:
             self.CRNI.prekini()
 
+    # Funkcija, ki vzame potezo nazaj
+    def vzami_nazaj(self):
+        pass
+
 ######################################################################
 ## Glavni program
 
@@ -250,11 +270,25 @@ if __name__ == "__main__":
     parser.add_argument('--debug',
                         action='store_true',
                         help='vklopi sporocila o dogajanju')
+    
+    parser.add_argument('--globinaM',
+                        default=MINIMAX_GLOBINA,
+                        type=int,
+                        help='globina iskanja za minimax algoritem')
+    
+    parser.add_argument('--globinaAB',
+                        default=ALFABETA_GLOBINA,
+                        type=int,
+                        help='globina iskanja za alfabeta algoritem')
+    
 
+    
     args = parser.parse_args()
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
+
+
 
     # Naredimo glavno okno in nastavimo ime
     root = Tk()
