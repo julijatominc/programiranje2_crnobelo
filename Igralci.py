@@ -80,12 +80,12 @@ class Racunalnik():
 ## Algoritem minimax
 
 class Minimax():
-    def __init__(self, globina):
+    def __init__(self, globinaM):
         self.prekiitev = False
         self.igra = None
         self.jaz = None
         self.poteza = None
-        self.globina = globina
+        self.globina = globinaM
 
 
     ZMAGA = 10000
@@ -240,12 +240,12 @@ class Minimax():
 ## Igralec alfabeta
 
 class Alfabeta():
-    def __init__(self, globina):
+    def __init__(self, globinaAB):
         self.prekiitev = False
         self.igra = None
         self.jaz = None
         self.poteza = None
-        self.globina = globina
+        self.globina = globinaAB
 
 
     ZMAGA = 10000
