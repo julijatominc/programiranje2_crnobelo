@@ -65,11 +65,11 @@ class Crnobelo():
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
         settings_menu.add_command(label="Clovek-Clovek", command= lambda: self.nova_igra(Clovek(self), Clovek(self), None))
-        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(GLOBINA)), None))
-        settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta()), None))
-        settings_menu.add_command(label="RacunalnikAB-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Minimax(GLOBINA)), None))
-        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA)), Racunalnik(self, Minimax(GLOBINA)), None))
-        settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta()), Racunalnik(self, Alfabeta()), None))
+        settings_menu.add_command(label="Clovek-Racunalnik", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(GLOBINA - 1)), None))
+        settings_menu.add_command(label="Clovek-RacunalnikAB", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta(GLOBINA)), None))
+        settings_menu.add_command(label="Racunalnik-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA - 1)), Racunalnik(self, Alfabeta(GLOBINA)), None))
+        settings_menu.add_command(label="Racunalnik-Racunalnik", command= lambda: self.nova_igra(Racunalnik(self, Minimax(GLOBINA - 1)), Racunalnik(self, Minimax(GLOBINA - 1)), None))
+        settings_menu.add_command(label="RacunalnikAB-RacunalnikAB", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(GLOBINA)), Racunalnik(self, Alfabeta(GLOBINA)), None))
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Dodatno", menu=settings_menu)
@@ -102,6 +102,7 @@ class Crnobelo():
 
     # Funkcija, ki ustvari novo igro.
     def nova_igra(self, beli=None, crni=None, velikost=None):
+        self.canvas.delete(Crnobelo.TAG_POTEZA)
         logging.debug("Nova igra")
         self.prekini_igralce()
 

@@ -93,7 +93,7 @@ class Minimax():
     VREDNOST_2 = ZMAGA//200
     VREDNOST_3 = ZMAGA//2000
     VREDNOST_4 = 0
-    NESKONCNO = ZMAGA + 1
+    NESKONCNO = 2*ZMAGA + 1
 
 
     def prekini(self):
@@ -240,42 +240,220 @@ class Minimax():
 ## Igralec alfabeta
 
 class Alfabeta():
-    def __init__(self):
-        # Dodaj se globino.
+    def __init__(self, globina):
         self.prekiitev = False
         self.igra = None
         self.jaz = None
         self.poteza = None
+        self.globina = globina
+
+
+    ZMAGA = 10000
+    VREDNOST_1 = ZMAGA//20
+    VREDNOST_2 = ZMAGA//200
+    VREDNOST_3 = ZMAGA//2000
+    VREDNOST_4 = 0
+    NESKONCNO = 10*ZMAGA + 1
+
 
     def prekini(self):
         self.prekinitev = True
 
-
+    #Izracuna vrednost pozicije
     def vrednost_pozicije(self):
-        pass
+        ocena = 0
+        for i in self.igra.veljavne_poteze():
+            ocena += self.tip_polja(i)
+
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        for i in self.igra.veljavne_poteze():
+            ocena -= self.tip_polja(i)
+
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        if self.globina % 2 == 1:
+            ocena = -ocena
+
+        return ocena
 
 
     def izracunaj_potezo(self, igra):
-        logging.debug("Igra alfabeta")
+        logging.debug("Igra minimax")
         self.igra = igra
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        poteza = self.alfabeta(igra)
+        (poteza, vrednost) = self.alfabeta(self.globina, -Alfabeta.NESKONCNO, Alfabeta.NESKONCNO, True)
+        self.jaz = None
+        self.igra = None
 
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
             self.poteza = poteza
 
-    def alfabeta(self, igra):
-        do_kdaj = False
-        while not do_kdaj:
-            x =  random.randint(0, (self.igra.velikost()) - 1)
-            y =  random.randint(0, (self.igra.velikost()) - 1)
-            logging.debug("{0},{1}".format(x,y))
-            do_kdaj = self.igra.dovoljeno(x,y)
+    def alfabeta(self, globina, a, b, maksimiziramo):
 
-        return (x,y)
+        """Glavna metoda alfabeta."""
+        if self.prekinitev:
+            # Sporocili so nam, da moramo prekiniti
+            logging.debug ("Alfabeta prekinja, globina = {0}".format(globina))
+            return (None, 0)
+
+        if self.igra.je_konec():
+            if self.igra.na_vrsti == self.jaz:
+                return (None, -Alfabeta.ZMAGA)
+            elif self.igra.na_vrsti == nasprotnik(self.jaz):
+                return (None, Alfabeta.ZMAGA)
+            else:
+                assert False, "Napaka v koncu igre v Alfabeta."
+
+        else:
+            #logging.debug("Sm v alfabeta...")
+            if globina == 0:
+                return (None, self.vrednost_pozicije())
+            else:
+                #logging.debug("Globina ni 0...")
+                # Naredimo eno stopnjo alfabeta
+                if maksimiziramo:
+                    #logging.debug("Je maksimiziramo...")
+                    # Maksimiziramo
+                    najboljsa_poteza = None
+                    vrednost_najboljse = -Alfabeta.NESKONCNO
+                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+                    for p in self.igra.veljavne_poteze():
+                        #logging.debug("Sem v for zanki...")
+                        self.igra.povleci_potezo(p)
+                        vrednost = self.alfabeta(globina-1, a, b, not maksimiziramo)[1]
+                        #logging.debug("Zdej bom razveljavil...")
+                        #logging.debug("{0}".format(self.igra.zgodovina))
+                        self.igra.razveljavi()
+                        if vrednost > vrednost_najboljse:
+                            vrednost_najboljse = vrednost
+                            najboljsa_poteza = p
+                        a = max(a, vrednost_najboljse)
+                        
+                        if b <= a:
+                            break 
+                            
+                        
+                else:
+                    #logging.debug("Ni maksimiziramo...")
+                    # Minimiziramo
+                    najboljsa_poteza = None
+                    vrednost_najboljse = Alfabeta.NESKONCNO
+                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+                    for p in self.igra.veljavne_poteze():
+                        self.igra.povleci_potezo(p)
+                        vrednost = self.alfabeta(globina-1, a, b, not maksimiziramo)[1]
+                        #logging.debug("Zdej bom razveljavil...")
+                        #logging.debug("{0}".format(self.igra.zgodovina))
+                        self.igra.razveljavi()
+                        if vrednost < vrednost_najboljse:
+                            vrednost_najboljse = vrednost
+                            najboljsa_poteza = p
+                        b = min(b, vrednost_najboljse)
+
+                        if b <= a:
+                            break
+
+                assert (najboljsa_poteza is not None), "alfabeta: izracunana poteza je None"
+                return (najboljsa_poteza, vrednost_najboljse)
+
+
+
+    #Ustvari seznam sosedov xy
+    def sez_sosedov(self, xy):
+        if xy in SLOVAR_SOSEDOV:
+            return SLOVAR_SOSEDOV[xy]
+        else:
+            x, y = xy
+            sez = []
+            sez_polj = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+            for (i, j) in sez_polj:
+                if i >= 0 and j >= 0 and  self.igra.velikost() > i and self.igra.velikost() > j:
+                    sez.append((i,j))
+            SLOVAR_SOSEDOV[xy] = sez
+            return sez
+
+    #Funkcija vrne vrednost polja
+    def tip_polja(self, xy):
+        sosedi = self.sez_sosedov(xy)
+        a = self.igra.veljavne_poteze()
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+        b = self.igra.veljavne_poteze()
+        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+
+        c = True
+        for i in sosedi:
+            if i in b:
+                c = False
+                break
+
+        #Polje tipa 1. Polje smo zavzeli mi.
+        if xy in a and xy not in b and c:
+            return Alfabeta.VREDNOST_1
+        #Polje nam lahko odzame.
+        elif xy in a and xy not in b:
+            return Alfabeta.VREDNOST_2
+        #Polje je prosto.
+        elif xy in a and xy in b:
+            return Alfabeta.VREDNOST_3
+        #Polje je neveljavno.
+        else:
+            return Alfabeta.VREDNOST_4
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################################################################
+## Igralec naklucje
+
+##class Nakljucje():
+##    # Dodaj se globino.
+##        self.prekiitev = False
+##        self.igra = None
+##        self.jaz = None
+##        self.poteza = None
+##
+##    def prekini(self):
+##        self.prekinitev = True
+##
+##
+##    def vrednost_pozicije(self):
+##        pass
+##
+##
+##    def izracunaj_potezo(self, igra):
+##        logging.debug("Igra random")
+##        self.igra = igra
+##        self.prekinitev = False
+##        self.jaz = self.igra.na_vrsti
+##        self.poteza = None
+##        poteza = self.nakljucje(igra)
+##
+##        if not self.prekinitev:
+##            # Potezo izvedemo v primeru, da nismo bili prekinjeni
+##            self.poteza = poteza
+##
+##    def naklucje(self, igra):
+##        do_kdaj = False
+##        while not do_kdaj:
+##            x =  random.randint(0, (self.igra.velikost()) - 1)
+##            y =  random.randint(0, (self.igra.velikost()) - 1)
+##            logging.debug("{0},{1}".format(x,y))
+##            do_kdaj = self.igra.dovoljeno(x,y)
+##
+##        return (x,y)
 
 ######################################################################
 ## Igralec clovek
