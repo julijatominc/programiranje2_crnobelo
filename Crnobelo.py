@@ -4,7 +4,9 @@ from Igralci import*
 import ast
 import argparse
 import logging
-import winsound
+try: import winsound
+except: pass
+
 
 
 BELI = "Beli"
@@ -32,23 +34,26 @@ class Crnobelo():
 
         self.napis2 = StringVar()
         Label(master, textvariable=self.napis2).grid(row=1, column=0)
+
+        # Gumb za namig
+        b = Button(master, text="Namig", command=self.napis).grid(row = 3, column = 0)
+    
         
         # Definira vrednosti.
         self.velikost = velikost
-        self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1))
+        self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1), bg = "white")
         self.canvas.grid(row=2, column=0)
 
         # Na canvas narise zacetno polje.
         self.narisi()
 
-        # Povezemo klik z dogodkom.
+        # Povezemo klik z dogodkom
         self.canvas.bind("<Button-1>", self.plosca_klik)
 
     
         # Glavni menu.
         menu = Menu(master)
         master.config(menu=menu)
-        # Dodamo gumb za namig
 
         # Dodamo moznosti v menu.
         file_menu = Menu(menu)
@@ -69,12 +74,16 @@ class Crnobelo():
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
+        submenu = Menu(menu)
         settings_menu.add_command(label="Clovek - Clovek", command= lambda: self.nova_igra(Clovek(self), Clovek(self), None))
-        settings_menu.add_command(label="Clovek - Random", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Nakljucje()), None))
-        settings_menu.add_command(label="Clovek - Racunalnik Minimax", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(MINIMAX_GLOBINA )), None))
-        settings_menu.add_command(label="Clovek - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
-        settings_menu.add_command(label="Racunalnik Minimax - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Minimax(MINIMAX_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
-        settings_menu.add_command(label="Racunalnik Alfa-beta - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
+        settings_menu.add_cascade(label='Racunalnik', menu=submenu, underline = 0)
+
+        
+        submenu.add_command(label="Clovek - Random", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Nakljucje()), None))
+        submenu.add_command(label="Clovek - Racunalnik Minimax", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Minimax(MINIMAX_GLOBINA )), None))
+        submenu.add_command(label="Clovek - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Clovek(self), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
+        submenu.add_command(label="Racunalnik Minimax - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Minimax(MINIMAX_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
+        submenu.add_command(label="Racunalnik Alfa-beta - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Dodatno", menu=settings_menu)
@@ -127,15 +136,20 @@ class Crnobelo():
 
         # logging.debug("Velikost: {0}.".format(self.velikost))
 
+        #Ustvarimo matriko z zacetnimi vrednostmi
         self.igra.matrika = [[[True, True, None] for _ in  range(self.velikost)] for _ in range(self.velikost)]
+
+        
         self.napis.set("")
+
         self.igra.na_vrsti = BELI
         logging.debug("Na vrsti:{0}".format(self.igra.na_vrsti))
 
         logging.debug("Beli: {0}, Crni: {1}".format(self.BELI, self.CRNI))
         
         self.napis2.set("Na vrsti je beli.")
-        
+
+        #Zacnemo igro
         self.BELI.igraj()
 
     # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo
@@ -158,7 +172,7 @@ class Crnobelo():
             self.napis.set("")
             poteza = self.igra.povleci_potezo(xy)
             
-               
+            #Poteza je neveljavna. Poskusimo ponovno
             if poteza is None:
                 self.napis.set("Neveljavna poteza!")
                 if self.igra.na_vrsti == BELI:
@@ -167,30 +181,32 @@ class Crnobelo():
                     self.CRNI.igraj()
                 else:
                     assert False
+            #Poteza je veljavna.
             else:
-            
                 if self.igra.na_vrsti == CRNI:
-                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), tag=Crnobelo.TAG_KROG)
-                    
+                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
                     self.napis2.set("Na vrsti je crni.")
-                    
                     
                 else:
                     self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
-
-            
                     self.napis2.set("Na vrsti je beli.")
 
+                #Ob odigrani potezi: beep!
                 if self.zvocnik:
-                    winsound.Beep(150, 75)
-
+                    try: winsound.Beep(150, 75)
+                    except: pass
+                    
+                #Ce je igre konec.
                 if self.igra.je_konec():
                     self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
                     self.napis2.set("")
                     self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
                     if self.zvocnik:
-                        winsound.Beep(500, 150)
-                        #winsound.PlaySound("tara", winsound.SND_ALIAS)
+                        try: winsound.Beep(500, 150)
+                        except: pass
+                       #winsound.PlaySound("tara", winsound.SND_ALIAS)
+
+                #Igre ni konec, nadaljujemo.
                 else:
 
                     if self.igra.na_vrsti == BELI:
@@ -202,16 +218,14 @@ class Crnobelo():
 
         #logging.debug("{0}".format(self.igra.veljavne_poteze()))
 
-    # Na canvasu pobarva veljavne poteze    
+    # Na canvasu pobarva veljavne poteze.  
     def pobarvaj_poteze(self):
         poteze = self.igra.veljavne_poteze()
         for i in poteze:
             x, y = i
             self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="grey90", tag=Crnobelo.TAG_POTEZA)
 
-
-
-    # Pobrise veljave poteze
+    # Pobrise veljave poteze.
     def pobrisi_poteze(self):
         self.canvas.delete(Crnobelo.TAG_POTEZA)
 
@@ -245,9 +259,9 @@ class Crnobelo():
         for i in range(self.velikost):
             for j in range(self.velikost):
                 if self.matrika[i][j][2] == "Beli":
-                    self.canvas.create_oval(i * 100 + 60, j * 100 + 60, i * 100 + 140, j * 100 + 140)
+                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white")
                 if self.igra.matrika[i][j][2] == "Crni":
-                    self.canvas.create_oval(i * 100 + 60, j * 100 + 60, i * 100 + 140, j* 100 + 140, fill="black")
+                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black")
 
     def zvok(self, bool):
         if not bool:
@@ -264,6 +278,13 @@ class Crnobelo():
     # Funkcija, ki vzame potezo nazaj
     def vzami_nazaj(self):
         pass
+##
+##    def pobarvaj_namig(self):
+##        poteza = self.BELI.igraj()[0]
+##
+##        elif self.CRNI:
+##            return self.Crnobelo.CRNI.igraj()[]
+##        assert False
 
 ######################################################################
 ## Glavni program

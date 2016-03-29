@@ -9,6 +9,7 @@ import threading
 
 SLOVAR_SOSEDOV = {}
 
+#Vrne nasprotnika
 def nasprotnik(igralec):
     if igralec == BELI:
         return CRNI
@@ -41,7 +42,7 @@ class Racunalnik():
         # Naredimo vlakno, ki mu podamo *kopijo* igre (da ne bo zmedel GUIja):
         # logging.debug("Velikost: {0}".format(self.Crnobelo.igra.kopija()))
 
-        self.Crnobelo.napis2.set("Razmisljam.")
+        self.Crnobelo.napis.set("Razmisljam.")
         
         self.mislec = threading.Thread(
             target=lambda: self.algoritem.izracunaj_potezo(self.Crnobelo.igra.kopija()))
@@ -51,6 +52,8 @@ class Racunalnik():
 
         # Gremo preverjat, ali je bila najdena poteza:
         self.Crnobelo.canvas.after(100, self.preveri_potezo)
+
+
 
     def preveri_potezo(self):
         """Vsakih 100ms preveri, ali je algoritem ze izracunal potezo."""
@@ -74,7 +77,7 @@ class Racunalnik():
             # Pocakamo, da se vlakno ustavi
             self.mislec.join()
             self.mislec = None
-
+    
     def klik(self, p):
         # Racunalnik ignorira klike
         pass
@@ -120,7 +123,7 @@ class Minimax():
 
         return ocena
 
-
+    #Izracuna potezo
     def izracunaj_potezo(self, igra):
         logging.debug("Igra minimax")
         self.igra = igra
@@ -258,7 +261,7 @@ class Alfabeta():
     VREDNOST_4 = 0
     NESKONCNO = 10*ZMAGA + 1
 
-
+    # Prekinitev igralca
     def prekini(self):
         self.prekinitev = True
 
@@ -280,7 +283,7 @@ class Alfabeta():
 
         return ocena
 
-
+    #Izracuna vrednost poteze
     def izracunaj_potezo(self, igra):
         logging.debug("Igra minimax")
         self.igra = igra
@@ -295,6 +298,7 @@ class Alfabeta():
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
             self.poteza = poteza
 
+    # Alfabeta
     def alfabeta(self, globina, a, b, maksimiziramo):
 
         """Glavna metoda alfabeta."""
@@ -448,6 +452,7 @@ class Nakljucje():
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
             self.poteza = poteza
 
+    # Vrne nakljucno veljavno potezo
     def nakljucje(self, igra):
         do_kdaj = False
         while not do_kdaj:

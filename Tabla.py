@@ -4,8 +4,20 @@ import logging
 import copy
 
 
-## Igra
+# Vrne seznam s tremi centralnimi vrednostmi na prvih treh mestih
+def cent_sez(sez):
+    a = len(sez)//2
+    seznam=[]
+    seznam.append(sez[a])
+    seznam.append(sez[a+1])
+    seznam.append(sez[a-1])
+    del sez[a-1]
+    del sez[a-1]
+    del sez[a-1]
+    return seznam+sez
 
+
+## Igra 
 class Tabla():
     def __init__(self, velikost):
         self.matrika = [[[True, True, None] for _ in range(velikost)] for _ in range(velikost)]
@@ -57,13 +69,14 @@ class Tabla():
     def veljavne_poteze(self):
         velikost = self.velikost()
         poteze = []
-        for i in range(velikost):
-            for j in range(velikost):
+        seznam = cent_sez(list(range(0,velikost)))
+        for i in seznam:
+            for j in seznam:
                 if self.dovoljeno(j,i):
                     poteze.append((j,i))
         return poteze
 
-    
+
     # Funkcija, ki potezo zapise v matriko in hkrati doloci katere poteze so mogoce.
     def spremeni_matriko(self, x, y, n):
         self.matrika[y][x][0] = False
