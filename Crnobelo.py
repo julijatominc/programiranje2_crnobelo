@@ -91,9 +91,8 @@ class Crnobelo():
     # Funkcija za risanje sahovnice.
     def narisi(self):
         for i in range(self.velikost+1):
-            self.canvas.config(width=100*(self.velikost+1), height=100*(self.velikost +1))
-            self.canvas.create_line(50, i*100 + 50,(self.velikost*100)+50,i*100 +50)
-            self.canvas.create_line(i*100 +50, 50 , i*100 +50, (self.velikost*100) +50)
+            self.canvas.create_line((50+i*100*6/(self.velikost)),50,(50+i*100*6/(self.velikost)),650)
+            self.canvas.create_line(50,(50+i*100*6/(self.velikost)),650,(50+i*100*6/(self.velikost)))
 
     # Funkcija, ki zacne igro.
     def zacni_igro(self, beli=None, crni=None):
@@ -171,12 +170,15 @@ class Crnobelo():
             else:
             
                 if self.igra.na_vrsti == CRNI:
-                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, tag=Crnobelo.TAG_KROG)
+                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), tag=Crnobelo.TAG_KROG)
+                    
                     self.napis2.set("Na vrsti je crni.")
                     
                     
                 else:
-                    self.canvas.create_oval(x * 100 + 60, y * 100 + 60, x * 100 + 140, y * 100 + 140, fill="black", tag=Crnobelo.TAG_KROG)
+                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
+
+            
                     self.napis2.set("Na vrsti je beli.")
 
                 if self.zvocnik:
@@ -205,7 +207,9 @@ class Crnobelo():
         poteze = self.igra.veljavne_poteze()
         for i in poteze:
             x, y = i
-            self.canvas.create_rectangle(x * 100 + 50, y * 100 + 50, x * 100 + 150, y * 100 + 150, fill="grey85", tag=Crnobelo.TAG_POTEZA)
+            self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="grey90", tag=Crnobelo.TAG_POTEZA)
+
+
 
     # Pobrise veljave poteze
     def pobrisi_poteze(self):

@@ -40,6 +40,9 @@ class Racunalnik():
 
         # Naredimo vlakno, ki mu podamo *kopijo* igre (da ne bo zmedel GUIja):
         # logging.debug("Velikost: {0}".format(self.Crnobelo.igra.kopija()))
+
+        self.Crnobelo.napis2.set("Razmisljam.")
+        
         self.mislec = threading.Thread(
             target=lambda: self.algoritem.izracunaj_potezo(self.Crnobelo.igra.kopija()))
 
@@ -478,11 +481,10 @@ class Clovek():
         pass
 
     def klik(self, event):
-
+        velikost = self.Crnobelo.velikost
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
-
-        x, y = (event.x - 50) // 100, (event.y - 50) // 100
+        self.Crnobelo.pobrisi_poteze()
+        x, y = (event.x -(50*6/(velikost) )) // (100*6/(velikost)), (event.y  -(50*6/(velikost))) // (100*6/(velikost))
         if x >= 0 and y >= 0 and x < self.Crnobelo.velikost and y <self.Crnobelo.velikost:
-            self.Crnobelo.pobrisi_poteze()        
-            self.Crnobelo.izberi((x,y))
+            self.Crnobelo.izberi((int(x),int(y)))
 
