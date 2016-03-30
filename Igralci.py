@@ -82,6 +82,7 @@ class Racunalnik():
         # Racunalnik ignorira klike
         pass
 
+    
 ######################################################################
 ## Algoritem minimax
 
@@ -130,7 +131,7 @@ class Minimax():
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        (poteza, vrednost) = self.minimax(self.globina, True)
+        (poteza, vrednost) = self.minimax(self.globina + (self.igra.st_potez//(self.igra.velikost()//3)), True)
         self.jaz = None
         self.igra = None
 
@@ -247,13 +248,14 @@ class Minimax():
 
 class Alfabeta():
     def __init__(self, globinaAB):
-        self.prekiitev = False
+        self.prekinitev = False
         self.igra = None
         self.jaz = None
         self.poteza = None
         self.globina = globinaAB
 
 
+    
     ZMAGA = 10000
     VREDNOST_1 = ZMAGA//20
     VREDNOST_2 = ZMAGA//200
@@ -290,7 +292,7 @@ class Alfabeta():
         self.prekinitev = False
         self.jaz = self.igra.na_vrsti
         self.poteza = None
-        (poteza, vrednost) = self.alfabeta(self.globina, -Alfabeta.NESKONCNO, Alfabeta.NESKONCNO, True)
+        (poteza, vrednost) = self.alfabeta(self.globina + (self.igra.st_potez//(self.igra.velikost()//3)), -Alfabeta.NESKONCNO, Alfabeta.NESKONCNO, True)
         self.jaz = None
         self.igra = None
 
@@ -399,17 +401,16 @@ class Alfabeta():
 
         #Polje tipa 1. Polje smo zavzeli mi.
         if xy in a and xy not in b and c:
-            return Alfabeta.VREDNOST_1
+            return Alfabeta.VREDNOST_1 * (self.igra.VREDNOST_POLJ[xy])
         #Polje nam lahko odzame.
         elif xy in a and xy not in b:
-            return Alfabeta.VREDNOST_2
+            return Alfabeta.VREDNOST_2 * (self.igra.VREDNOST_POLJ[xy])
         #Polje je prosto.
         elif xy in a and xy in b:
-            return Alfabeta.VREDNOST_3
+            return Alfabeta.VREDNOST_3 * (self.igra.VREDNOST_POLJ[xy])
         #Polje je neveljavno.
         else:
             return Alfabeta.VREDNOST_4
-
 
 
 

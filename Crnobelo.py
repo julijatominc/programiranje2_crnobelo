@@ -12,8 +12,8 @@ except: pass
 BELI = "Beli"
 CRNI = "Crni"
 VELIKOST = 6
-MINIMAX_GLOBINA = 3
-ALFABETA_GLOBINA = 4
+MINIMAX_GLOBINA = 2
+ALFABETA_GLOBINA = 2
 
 
 class Crnobelo():
@@ -66,11 +66,11 @@ class Crnobelo():
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Velikost", menu=settings_menu)
-        settings_menu.add_command(label="5", command= lambda: self.nova_igra(None, None, 5))
-        settings_menu.add_command(label="6", command= lambda: self.nova_igra(None, None, 6))
-        settings_menu.add_command(label="7", command= lambda: self.nova_igra(None, None, 7))
-        settings_menu.add_command(label="8", command= lambda: self.nova_igra(None, None, 8))
-        settings_menu.add_command(label="9", command= lambda: self.nova_igra(None, None, 9))
+        settings_menu.add_command(label="5x5", command= lambda: self.nova_igra(None, None, 5))
+        settings_menu.add_command(label="6x6", command= lambda: self.nova_igra(None, None, 6))
+        settings_menu.add_command(label="7x7", command= lambda: self.nova_igra(None, None, 7))
+        settings_menu.add_command(label="8x8", command= lambda: self.nova_igra(None, None, 8))
+        settings_menu.add_command(label="9x9", command= lambda: self.nova_igra(None, None, 9))
 
         settings_menu = Menu(menu)
         menu.add_cascade(label="Igralci", menu=settings_menu)
@@ -86,7 +86,7 @@ class Crnobelo():
         submenu.add_command(label="Racunalnik Alfa-beta - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
 
         settings_menu = Menu(menu)
-        menu.add_cascade(label="Dodatno", menu=settings_menu)
+        menu.add_cascade(label="Zvok", menu=settings_menu)
         settings_menu.add_command(label="Vklopi zvok", command = lambda: self.zvok(True))
         settings_menu.add_command(label="Izklopi zvok", command = lambda: self.zvok(False))
         settings_menu.add_command(label="Vzami nazaj", command = self.vzami_nazaj())
@@ -237,7 +237,8 @@ class Crnobelo():
         with open(ime, "wt", encoding="utf8") as f:
             print(self.igra.matrika, file=f)
             print(self.igra.na_vrsti, file=f)
-            print(self.velikost, file=f)
+            print(self.BELI, file=f)
+            print(self.CRNI, file=f)
 
     # Funkcija, ki nalozi igro iz datoteke.
     def odpri(self):
@@ -248,9 +249,12 @@ class Crnobelo():
 
         self.igra.matrika = ast.literal_eval(sez[0].strip())
         KDO = sez[1].strip()
-        velikost = sez[2].strip()
+        beli = sez[2].strip()
+        crni = sez[3].strip()
+        velikost = len(self.igra.matrika)
 
-        self.nova_igra(velikost)
+        
+        self.nova_igra(beli, crni, velikost)
 
         if KDO == "Beli":
             self.igra.na_vrsti = BELI

@@ -24,6 +24,17 @@ class Tabla():
         self.na_vrsti = BELI
         # logging.debug("Velikost(27): {0}.".format(velikost))
         self.zgodovina = []
+        self.st_potez = 0
+
+        # Poda vrednost polja, center ima vecjo vrednost
+        self.VREDNOST_POLJ = {}
+
+        for i in range(self.velikost()):
+            for j in range(self.velikost()):
+                self.VREDNOST_POLJ[(j, i)] = 1
+        for i in cent_sez(list(range(self.velikost())))[0:3]:
+            for j in cent_sez(list(range(self.velikost())))[0:3]:
+                self.VREDNOST_POLJ[(j, i)] = 1.5
 
     def velikost(self):
         return len(self.matrika)
@@ -113,6 +124,7 @@ class Tabla():
             return None
 
         else:
+            self.st_potez += 1
             self.shrani_pozicijo()
             if self.na_vrsti == BELI:
                 self.spremeni_matriko(x, y, 1)
