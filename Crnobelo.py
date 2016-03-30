@@ -1,9 +1,12 @@
 from tkinter import*
+from tkinter import filedialog
 from Tabla import*
 from Igralci import*
 import ast
 import argparse
 import logging
+import re
+import csv
 try: import winsound
 except: pass
 
@@ -231,41 +234,71 @@ class Crnobelo():
 
     # Funkcija, ki shrani igro v datoteko.
     def shrani(self):
-        ime = filedialog.asksaveasfilename()
+        self.prekini_igralce()
+
+        beli = (re.findall(r'\.(.+?)\s', str(self.BELI))[0]).lower()
+        crni = (re.findall(r'\.(.+?)\s', str(self.CRNI))[0]).lower()
+
+        ime = filedialog.asksaveasfilename(filetypes =(("Text File", "*.txt"),("All Files","*.*")), defaultextension=".txt")
         if ime == "":
             return
         with open(ime, "wt", encoding="utf8") as f:
             print(self.igra.matrika, file=f)
             print(self.igra.na_vrsti, file=f)
-            print(self.BELI, file=f)
-            print(self.CRNI, file=f)
+            print(beli, file=f)
+            print(crni, file=f)
+            print(str(self.igra.st_potez), file=f)
 
     # Funkcija, ki nalozi igro iz datoteke.
     def odpri(self):
-        ime = filedialog.askopenfilename()
+        ime = filedialog.askopenfilename(filetypes =(("Text File", "*.txt"),("All Files","*.*")))
         s = open(ime, encoding="utf8")
         sez = s.readlines()
         s.close
 
-        self.igra.matrika = ast.literal_eval(sez[0].strip())
+
         KDO = sez[1].strip()
         beli = sez[2].strip()
         crni = sez[3].strip()
-        velikost = len(self.igra.matrika)
+        velikost = len(ast.literal_eval(sez[0].strip()))
+        stevilo = int(sez[4].strip())
 
-        
+
+
+        if str(beli) == "clovek":
+            beli = Clovek(self)
+        else:
+            beli =  Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
+
+
+        if str(crni) == "clovek":
+            crni = Clovek(self)
+        else:
+            crni =  Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
+
         self.nova_igra(beli, crni, velikost)
-
-        if KDO == "Beli":
-            self.igra.na_vrsti = BELI
-        else: self.igra.na_vrsti = CRNI
+        self.prekini_igralce()
+        self.napis.set("")
+        self.igra.matrika = ast.literal_eval(sez[0].strip())
+        self.igra.st_potez = stevilo
 
         for i in range(self.velikost):
             for j in range(self.velikost):
-                if self.matrika[i][j][2] == "Beli":
-                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white")
-                if self.igra.matrika[i][j][2] == "Crni":
-                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black")
+                if self.igra.matrika[j][i][2] == "Beli":
+                    self.canvas.create_oval((i * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (j *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (i * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (j *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
+                if self.igra.matrika[j][i][2] == "Crni":
+                    self.canvas.create_oval((i * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (j *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (i * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (j *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
+
+
+        if KDO == "Beli":
+            self.igra.na_vrsti = BELI
+            self.BELI.igraj()
+            self.napis2.set("Na potezi je beli.")
+        else:
+            self.igra.na_vrsti = CRNI
+            self.CRNI.igraj()
+            self.napis2.set("Na potezi je crni.")
+
 
     def zvok(self, bool):
         if not bool:
