@@ -113,7 +113,7 @@ igralec odigra napačno potezo, ga uporabniski vmesnik na to opozori z napisom "
 cloveski igralec, se mozne poteze obarvajo s sivo.
 
 Izbira igralcev in Namig:
-Uporabnik lahko izbira med igralci v kaskadi igralci. Moznih je vec izbir, uporabnik lahko izbere katerakoli dva izmed stirih razlicnih
+Uporabnik lahko izbira med igralci v kaskadi igralci. Moznih je vec izbir, uporabnik lahko izbere katerakoli dva izmed treh razlicnih
 racunalniskih igralcev in enim cloveskim. Ko je na vrsti racunalniski igralec, se nad sahovnico izpise "Razmisljam.". Cloveski igralec ima
 moznost, da uporabi namig racunalnika s klikom na gumb "Namig". Po kliku zacne racunalnik razmisljati, ko izracuna potezo, jo na sahovnici
 oznaci z rdeco.
