@@ -100,7 +100,38 @@ class Crnobelo():
 
         def pomoc():
             window = Toplevel(root)
-            label = Label(window, text = "Kako igrati? \n Igro igrata dva igralca na poljubno izbranem polju. Severin napiše do konca, saj bolje oblikuje stavke.")
+            label = Label(window, text = """Navodila:
+Cilj igre:
+Igro igrata dva igralca na kvadratni sahovnici, katere velikost se da nastaviti v kaskadi velikost.
+Zacne igralec, ki polaga bele kroge, nato igralca izmenicno igrata dokler enemu od njih ne zmanjka moznih potez. Takrat je igre konec, 
+zmagal je igralec, ki je zadnji opravil potezo. Barva zmagovalca se izpise nad igralno plosco.
+
+Pravila igre:
+Igralec lahko takrat ko je na potezi igra svoj krog na tista polja, za katera je izpolnjen naslednji pogoj: Na nobenem od sosednjih polj
+ni nasprotnikovega kroga. Pri tem se za sosednja polja stejejo polja levo, desno, nad in pod poljem (ce so seveda znotraj sahovnice). Če
+igralec odigra napačno potezo, ga uporabniski vmesnik na to opozori z napisom "Neveljavna poteza!" nad sahovnico. Vsakic ko je na potezi
+cloveski igralec, se mozne poteze obarvajo s sivo.
+
+Izbira igralcev in Namig:
+Uporabnik lahko izbira med igralci v kaskadi igralci. Moznih je vec izbir, uporabnik lahko izbere katerakoli dva izmed stirih razlicnih
+racunalniskih igralcev in enim cloveskim. Ko je na vrsti racunalniski igralec, se nad sahovnico izpise "Razmisljam.". Cloveski igralec ima
+moznost, da uporabi namig racunalnika s klikom na gumb "Namig". Po kliku zacne racunalnik razmisljati, ko izracuna potezo, jo na sahovnici
+oznaci z rdeco.
+
+Nova igra:
+V kaskadi "Datoteka" lahko igralec zacne novo igro. Pri tem se zamenja vrstni red igranja. Na primer: ce je v prejsnji igri igralec 1 ena
+bil beli (in s tem zacel), je sedaj beli njegov nasprotnik (torej zacne on).
+
+Zvok:
+Vsakic ko se opravi poteza, se zaslisi ton nizke frekvence. Ko je igre konec pa ton visje frekvence. Uporabnik lahko v kaskadi "Zvok"
+izklopi oziroma znova vklopi zvocne efekte.
+
+Shrani in odpri:
+V kaskadi "Datoteka" ima uporabnik moznost, da igro s klikom na "Shrani" shrani v tekstovno datoteko, ki jo sam poimenuje. Shranjeno igro
+lahko kadarkoli zopet nadaljuje s klikom na "Odpri" in ustrezno izbiro datoteke.
+
+Izhod:
+S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         
             label.pack(side = "top", fill = "both")
 
@@ -179,7 +210,7 @@ class Crnobelo():
         #logging.debug("Preverim, ce je konec igre.")
         if not self.igra.je_konec():
             if self.NAMIG:
-                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red50", tag=Crnobelo.TAG_NAMIG)
+                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red", tag=Crnobelo.TAG_NAMIG)
                 self.NAMIG = False
             else:
                 self.napis.set("")
