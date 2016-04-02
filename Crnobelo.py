@@ -44,7 +44,7 @@ class Crnobelo():
         # Definira vrednosti.
         self.velikost = velikost
         self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1), bg = "white")
-        self.canvas.grid(row=2, column=0)
+        self.canvas.grid(row=2, column=0, columnspan=2)
 
         # Na canvas narise zacetno polje.
         self.narisi()
@@ -53,12 +53,13 @@ class Crnobelo():
         self.canvas.bind("<Button-1>", self.plosca_klik)
         
         # Gumb za namig
-        b = Button(master, text="Namig", command = lambda: self.pobarvaj_namig()).grid(row = 3, column = 0)
-
+        Button(master, text= "Namig", command = lambda: self.pobarvaj_namig()).grid(row = 0, column = 1, rowspan = 2)
     
         # Glavni menu.
         menu = Menu(master)
         master.config(menu=menu)
+        # Velikosti okna ne moremo spreminjati.
+        master.resizable(width=False, height=False) 
 
         # Dodamo moznosti v menu.
         file_menu = Menu(menu)
@@ -94,12 +95,14 @@ class Crnobelo():
         menu.add_cascade(label="Zvok", menu=settings_menu)
         settings_menu.add_command(label="Vklopi zvok", command = lambda: self.zvok(True))
         settings_menu.add_command(label="Izklopi zvok", command = lambda: self.zvok(False))
-        settings_menu.add_command(label="Vzami nazaj", command = self.vzami_nazaj())
+        
+        menu.add_command(label="Pomoc", command = lambda: pomoc())
 
-
-        menu.add_command(label="Pomoc")
-
-
+        def pomoc():
+            window = Toplevel(root)
+            label = Label(window, text = "Kako igrati? \n Igro igrata dva igralca na poljubno izbranem polju. Severin napiše do konca, saj bolje oblikuje stavke.")
+        
+            label.pack(side = "top", fill = "both")
 
         # logging.debug("Velikost: {0}.".format(self.velikost)),
         self.zacni_igro()
@@ -176,7 +179,7 @@ class Crnobelo():
         #logging.debug("Preverim, ce je konec igre.")
         if not self.igra.je_konec():
             if self.NAMIG:
-                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red", tag=Crnobelo.TAG_NAMIG)
+                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red50", tag=Crnobelo.TAG_NAMIG)
                 self.NAMIG = False
             else:
                 self.napis.set("")
