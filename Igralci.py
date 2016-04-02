@@ -488,6 +488,7 @@ class Clovek():
 
     def klik(self, event):
         velikost = self.Crnobelo.velikost
+        self.Crnobelo.canvas.delete(Crnobelo.TAG_NAMIG)
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
         self.Crnobelo.pobrisi_poteze()
         x, y = (event.x -(50*6/(velikost) )) // (100*6/(velikost)), (event.y  -(50*6/(velikost))) // (100*6/(velikost))

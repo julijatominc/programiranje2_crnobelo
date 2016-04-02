@@ -23,6 +23,7 @@ class Crnobelo():
     # Ustvarimo tag, da se bomo lahko kasneje sklicevali.
     TAG_KROG = 'krog'
     TAG_POTEZA = 'poteza'
+    TAG_NAMIG = 'namig'
 
 
     def __init__(self, master, velikost=VELIKOST):
@@ -30,6 +31,7 @@ class Crnobelo():
         self.CRNI = None
         self.igra = None
         self.zvocnik = True
+        self.NAMIG = False
 
         # Ustvarimo napis, ki nas obvesca o dogajanju.
         self.napis = StringVar()
@@ -37,9 +39,6 @@ class Crnobelo():
 
         self.napis2 = StringVar()
         Label(master, textvariable=self.napis2).grid(row=1, column=0)
-
-        # Gumb za namig
-        b = Button(master, text="Namig", command=self.napis).grid(row = 3, column = 0)
     
         
         # Definira vrednosti.
@@ -52,6 +51,9 @@ class Crnobelo():
 
         # Povezemo klik z dogodkom
         self.canvas.bind("<Button-1>", self.plosca_klik)
+        
+        # Gumb za namig
+        b = Button(master, text="Namig", command = lambda: self.pobarvaj_namig()).grid(row = 3, column = 0)
 
     
         # Glavni menu.
@@ -96,6 +98,8 @@ class Crnobelo():
 
 
         menu.add_command(label="Pomoc")
+
+
 
         # logging.debug("Velikost: {0}.".format(self.velikost)),
         self.zacni_igro()
@@ -171,56 +175,80 @@ class Crnobelo():
         # Preveri, ce je konec igre. V primeru, da je konec, nocemo vec dogajanja na plosci.
         #logging.debug("Preverim, ce je konec igre.")
         if not self.igra.je_konec():
-            
-            self.napis.set("")
-            poteza = self.igra.povleci_potezo(xy)
-            
-            #Poteza je neveljavna. Poskusimo ponovno
-            if poteza is None:
-                self.napis.set("Neveljavna poteza!")
-                if self.igra.na_vrsti == BELI:
-                    self.BELI.igraj()
-                elif self.igra.na_vrsti == CRNI:
-                    self.CRNI.igraj()
-                else:
-                    assert False
-            #Poteza je veljavna.
+            if self.NAMIG:
+                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red", tag=Crnobelo.TAG_NAMIG)
+                self.NAMIG = False
             else:
-                if self.igra.na_vrsti == CRNI:
-                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
-                    self.napis2.set("Na vrsti je crni.")
-                    
-                else:
-                    self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
-                    self.napis2.set("Na vrsti je beli.")
-
-                #Ob odigrani potezi: beep!
-                if self.zvocnik:
-                    try: winsound.Beep(150, 75)
-                    except: pass
-                    
-                #Ce je igre konec.
-                if self.igra.je_konec():
-                    self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
-                    self.napis2.set("")
-                    self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
-                    if self.zvocnik:
-                        try: winsound.Beep(500, 150)
-                        except: pass
-                       #winsound.PlaySound("tara", winsound.SND_ALIAS)
-
-                #Igre ni konec, nadaljujemo.
-                else:
-
+                self.napis.set("")
+                poteza = self.igra.povleci_potezo(xy)
+                
+                #Poteza je neveljavna. Poskusimo ponovno
+                if poteza is None:
+                    self.napis.set("Neveljavna poteza!")
                     if self.igra.na_vrsti == BELI:
                         self.BELI.igraj()
                     elif self.igra.na_vrsti == CRNI:
                         self.CRNI.igraj()
                     else:
                         assert False
+                #Poteza je veljavna.
+                else:
+                    if self.igra.na_vrsti == CRNI:
+                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
+                        self.napis2.set("Na vrsti je crni.")
+                        
+                    else:
+                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
+                        self.napis2.set("Na vrsti je beli.")
+
+                    #Ob odigrani potezi: beep!
+                    if self.zvocnik:
+                        try: winsound.Beep(150, 75)
+                        except: pass
+                        
+                    #Ce je igre konec.
+                    if self.igra.je_konec():
+                        self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
+                        self.napis2.set("")
+                        self.napis.set("Konec igre! Zmagal je {0}!".format(self.igra.na_vrsti))
+                        if self.zvocnik:
+                            try: winsound.Beep(500, 150)
+                            except: pass
+                           #winsound.PlaySound("tara", winsound.SND_ALIAS)
+
+                    #Igre ni konec, nadaljujemo.
+                    else:
+
+                        if self.igra.na_vrsti == BELI:
+                            self.BELI.igraj()
+                        elif self.igra.na_vrsti == CRNI:
+                            self.CRNI.igraj()
+                        else:
+                            assert False
 
         #logging.debug("{0}".format(self.igra.veljavne_poteze()))
 
+    #pokliče funkcijo izberi z alfabeta in poarva namig
+    def pobarvaj_namig(self):
+        self.NAMIG = True
+        if self.igra.na_vrsti == BELI:
+            nasprotnik = self.CRNI
+            self.CRNI = Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
+            self.CRNI.igraj()
+            self.CRNI = nasprotnik
+            self.BELI.igraj()
+        elif self.igra.na_vrsti == CRNI:
+            nasprotnik = self.BELI
+            self.BELI = Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
+            self.BELI.igraj()
+            self.BELI = nasprotnik
+            self.CRNI.igraj()
+            
+        #namig deluje, če ga pokliče človek
+        else:
+            self.NAMIG = False
+            pass
+        
     # Na canvasu pobarva veljavne poteze.  
     def pobarvaj_poteze(self):
         poteze = self.igra.veljavne_poteze()
