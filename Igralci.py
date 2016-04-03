@@ -540,9 +540,9 @@ class Clovek():
         velikost = self.Crnobelo.velikost
         #Izbrisemo namig, ce je vklopljen
         self.Crnobelo.canvas.delete(Crnobelo.TAG_NAMIG)
-        #Ko kliknemo se mozne poteze zbrisejo.
-        self.Crnobelo.pobrisi_poteze()
         # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
-        x, y = (event.x -(50*6/(velikost) )) // (100*6/(velikost)), (event.y  -(50*6/(velikost))) // (100*6/(velikost))
+        x, y = (event.x -50) // (100*6/(velikost)), (event.y  -50) // (100*6/(velikost))
         if x >= 0 and y >= 0 and x < self.Crnobelo.velikost and y <self.Crnobelo.velikost:
+            #Ko kliknemo se mozne poteze zbrisejo.
+            self.Crnobelo.pobrisi_poteze()
             self.Crnobelo.izberi((int(x),int(y)))

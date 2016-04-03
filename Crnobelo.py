@@ -26,6 +26,7 @@ class Crnobelo():
     TAG_KROG = 'krog'
     TAG_POTEZA = 'poteza'
     TAG_NAMIG = 'namig'
+    TAG_ZP = 'zadnja' #poteza
 
 
     def __init__(self, master, velikost=VELIKOST):
@@ -180,6 +181,8 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
 
     # Funkcija, ki ustvari novo igro.
     def nova_igra(self, beli=None, crni=None, velikost=None):
+        self.canvas.delete(Crnobelo.TAG_NAMIG)
+        self.NAMIG = False
         self.canvas.delete(Crnobelo.TAG_POTEZA)
         logging.debug("Nova igra")
         self.prekini_igralce()
@@ -263,11 +266,15 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                 # Poteza je veljavna.
                 else:
                     if self.igra.na_vrsti == CRNI:
+                        self.canvas.delete(Crnobelo.TAG_ZP)
                         self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
+                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "blue", tag=Crnobelo.TAG_ZP)
                         self.napis2.set("Na vrsti je crni.")
                         
                     else:
+                        self.canvas.delete(Crnobelo.TAG_ZP)
                         self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
+                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "blue", tag=Crnobelo.TAG_ZP)
                         self.napis2.set("Na vrsti je beli.")
 
                     # Ob odigrani potezi: beep!
@@ -301,19 +308,13 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         
         self.NAMIG = True
         if self.igra.na_vrsti == BELI and ('Clovek' in (re.findall(r'\.(.+?)\s', str(self.BELI)))):
-            nasprotnik = self.CRNI
-            self.CRNI = Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
-            self.CRNI.igraj()
-            self.CRNI = nasprotnik
+            Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)).igraj()
             self.BELI.igraj()
             
         elif self.igra.na_vrsti == CRNI and ('Clovek' in (re.findall(r'\.(.+?)\s', str(self.CRNI)))):
-            nasprotnik = self.BELI
-            self.BELI = Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
-            self.BELI.igraj()
-            self.BELI = nasprotnik
+            Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)).igraj()
             self.CRNI.igraj()
-            
+
         # Namig deluje, če ga poklice človek
         else:
             self.NAMIG = False
