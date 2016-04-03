@@ -35,7 +35,7 @@ class Crnobelo():
 
         # Ustvarimo napis, ki nas obvesca o dogajanju. Sporoča, kaj se dogaja z igralcem racunalnik.
         self.napis = StringVar()
-        Label(master, textvariable=self.napis)..grid(row=0, column=0)
+        Label(master, textvariable=self.napis).grid(row=0, column=0)
 
         # Ustvarimo napis, ki nas obvesca o dogajanju. Sporoča, kdo je na vrsti.
         self.napis2 = StringVar()
