@@ -6,7 +6,7 @@ import random
 import threading
 
 
-
+# V slovar spravimo seznam sosedov vsakega polja.
 SLOVAR_SOSEDOV = {}
 
 #Vrne nasprotnika
@@ -60,8 +60,10 @@ class Racunalnik():
         if self.algoritem.poteza is not None:
             # Algoritem je nasel potezo, povleci jo, ce ni bilo prekinitve
             self.Crnobelo.izberi(self.algoritem.poteza)
-            #logging.debug("{0}".format(self.Crnobelo.igra.zgodovina))
-            #logging.debug("{0}".format(self.Crnobelo.igra.matrika))
+
+            logging.debug("{0}".format(self.Crnobelo.igra.zgodovina))
+            logging.debug("{0}".format(self.Crnobelo.igra.matrika))
+
             # Vzporedno vlakno ni vec aktivno, zato ga "pozabimo"
             self.mislec = None
         else:
@@ -71,7 +73,9 @@ class Racunalnik():
     def prekini(self):
         # To metodo klice GUI, ce je treba prekiniti razmisljanje.
         if self.mislec:
+            
             logging.debug ("Prekinjamo {0}".format(self.mislec))
+
             # Algoritmu sporocimo, da mora nehati z razmisljanjem
             self.algoritem.prekini()
             # Pocakamo, da se vlakno ustavi
@@ -94,7 +98,7 @@ class Minimax():
         self.poteza = None
         self.globina = globinaM
 
-
+    # Določimo vrednosti polj in zmage.
     ZMAGA = 10000
     VREDNOST_1 = ZMAGA//20
     VREDNOST_2 = ZMAGA//200
@@ -103,19 +107,23 @@ class Minimax():
     NESKONCNO = 2*ZMAGA + 1
 
 
+    # Funkcija, ki prekine. 
     def prekini(self):
         self.prekinitev = True
 
-    #Izracuna vrednost pozicije
+    # Izracuna vrednost pozicije.
     def vrednost_pozicije(self):
         ocena = 0
+
+        # Oceni pristejemo vrednost vsakega polja.
         for i in self.igra.veljavne_poteze():
             ocena += self.tip_polja(i)
 
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
+        #Oceni odstejemo dvakratno vrednost vsakega polja nasprotnika.(Bolj napadalna igra.)
         for i in self.igra.veljavne_poteze():
-            ocena -= self.tip_polja(i)
+            ocena -= 2*self.tip_polja(i)
 
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
@@ -144,7 +152,9 @@ class Minimax():
         """Glavna metoda minimax."""
         if self.prekinitev:
             # Sporocili so nam, da moramo prekiniti
+            
             logging.debug ("Minimax prekinja, globina = {0}".format(globina))
+
             return (None, 0)
 
         if self.igra.je_konec():
@@ -156,39 +166,57 @@ class Minimax():
                 assert False, "Napaka v koncu igre v Minimaxu."
 
         else:
-            #logging.debug("Sm v minimaxu...")
+
+            logging.debug("Sm v minimaxu...")
+
             if globina == 0:
                 return (None, self.vrednost_pozicije())
             else:
-                #logging.debug("Globina ni 0...")
+
+                logging.debug("Globina ni 0...")
+
                 # Naredimo eno stopnjo minimax
                 if maksimiziramo:
-                    #logging.debug("Je maksimiziramo...")
+
+                    logging.debug("Je maksimiziramo...")
+
                     # Maksimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
+                    logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
                     for p in self.igra.veljavne_poteze():
-                        #logging.debug("Sem v for zanki...")
+                        
+                        logging.debug("Sem v for zanki...")
+
                         self.igra.povleci_potezo(p)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                        #logging.debug("Zdej bom razveljavu...")
-                        #logging.debug("{0}".format(self.igra.zgodovina))
+
+                        logging.debug("Zdaj bom razveljavil...")
+                        logging.debug("{0}".format(self.igra.zgodovina))
+
                         self.igra.razveljavi()
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p
                 else:
-                    #logging.debug("Ni maksimiziramo...")
+
+                    logging.debug("Ni maksimiziramo...")
+
                     # Minimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
-                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
+                    logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
                     for p in self.igra.veljavne_poteze():
                         self.igra.povleci_potezo(p)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                        #logging.debug("Zdej bom razveljavu...")
-                        #logging.debug("{0}".format(self.igra.zgodovina))
+                        
+                        logging.debug("Zdaj bom razveljavil...")
+                        logging.debug("{0}".format(self.igra.zgodovina))
+
                         self.igra.razveljavi()
                         if vrednost < vrednost_najboljse:
                             vrednost_najboljse = vrednost
@@ -255,7 +283,7 @@ class Alfabeta():
         self.globina = globinaAB
 
 
-    
+    # Vrednosti polj in zmage.
     ZMAGA = 10000
     VREDNOST_1 = ZMAGA//20
     VREDNOST_2 = ZMAGA//200
@@ -276,7 +304,7 @@ class Alfabeta():
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
         for i in self.igra.veljavne_poteze():
-            ocena -= self.tip_polja(i)
+            ocena -= 2*self.tip_polja(i)
 
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
@@ -322,20 +350,28 @@ class Alfabeta():
             if globina == 0:
                 return (None, self.vrednost_pozicije())
             else:
-                #logging.debug("Globina ni 0...")
+
+                logging.debug("Globina ni 0...")
+
                 # Naredimo eno stopnjo alfabeta
                 if maksimiziramo:
                     #logging.debug("Je maksimiziramo...")
                     # Maksimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = -Alfabeta.NESKONCNO
-                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
+                    logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
                     for p in self.igra.veljavne_poteze():
-                        #logging.debug("Sem v for zanki...")
+
+                        logging.debug("Sem v for zanki...")
+
                         self.igra.povleci_potezo(p)
                         vrednost = self.alfabeta(globina-1, a, b, not maksimiziramo)[1]
-                        #logging.debug("Zdej bom razveljavil...")
-                        #logging.debug("{0}".format(self.igra.zgodovina))
+
+                        logging.debug("Zdaj bom razveljavil...")
+                        logging.debug("{0}".format(self.igra.zgodovina))
+
                         self.igra.razveljavi()
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
@@ -347,16 +383,22 @@ class Alfabeta():
                             
                         
                 else:
-                    #logging.debug("Ni maksimiziramo...")
+                    
+                    logging.debug("Ni maksimiziramo...")
+
                     # Minimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = Alfabeta.NESKONCNO
-                    #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
+                    logging.debug("{0}".format(self.igra.veljavne_poteze()))
+
                     for p in self.igra.veljavne_poteze():
                         self.igra.povleci_potezo(p)
                         vrednost = self.alfabeta(globina-1, a, b, not maksimiziramo)[1]
-                        #logging.debug("Zdej bom razveljavil...")
-                        #logging.debug("{0}".format(self.igra.zgodovina))
+
+                        logging.debug("Zdaj bom razveljavil...")
+                        logging.debug("{0}".format(self.igra.zgodovina))
+
                         self.igra.razveljavi()
                         if vrednost < vrednost_najboljse:
                             vrednost_najboljse = vrednost
@@ -433,6 +475,7 @@ class Nakljucje():
         self.jaz = None
         self.poteza = None
 
+    
     def prekini(self):
         self.prekinitev = True
 
@@ -459,7 +502,9 @@ class Nakljucje():
         while not do_kdaj:
             x =  random.randint(0, (self.igra.velikost()) - 1)
             y =  random.randint(0, (self.igra.velikost()) - 1)
+            
             logging.debug("{0},{1}".format(x,y))
+
             do_kdaj = self.igra.dovoljeno(x,y)
 
         return (x,y)
@@ -476,9 +521,13 @@ class Clovek():
         # cakamo, da bo uporanik kliknil na plosco. Ko se
         # bo to zgodilo, nas bo Gui obvestil preko metode
         # klik.
+
+        #Pobarvaj mozne poteze.
         self.Crnobelo.pobarvaj_poteze()
+        
         logging.debug("Igra clovek")
         logging.debug("{0}".format(self.Crnobelo.igra.matrika))
+
         pass
 
     def prekini(self):
@@ -488,9 +537,11 @@ class Clovek():
 
     def klik(self, event):
         velikost = self.Crnobelo.velikost
+        #Izbrisemo namig, ce je vklopljen
         self.Crnobelo.canvas.delete(Crnobelo.TAG_NAMIG)
-        # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
+        #Ko kliknemo se mozne poteze zbrisejo.
         self.Crnobelo.pobrisi_poteze()
+        # Povlecemo potezo. Ce ni veljavna, se ne bo zgodilo nic.
         x, y = (event.x -(50*6/(velikost) )) // (100*6/(velikost)), (event.y  -(50*6/(velikost))) // (100*6/(velikost))
         if x >= 0 and y >= 0 and x < self.Crnobelo.velikost and y <self.Crnobelo.velikost:
             self.Crnobelo.izberi((int(x),int(y)))

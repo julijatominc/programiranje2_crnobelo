@@ -4,7 +4,7 @@ import logging
 import copy
 
 
-# Vrne seznam s tremi centralnimi vrednostmi na prvih treh mestih
+# Vrne seznam s tremi centralnimi vrednostmi na prvih treh mestih.
 def cent_sez(sez):
     a = len(sez)//2
     seznam=[]
@@ -22,7 +22,9 @@ class Tabla():
     def __init__(self, velikost):
         self.matrika = [[[True, True, None] for _ in range(velikost)] for _ in range(velikost)]
         self.na_vrsti = BELI
-        # logging.debug("Velikost(27): {0}.".format(velikost))
+
+        logging.debug("Velikost(27): {0}.".format(velikost))
+
         self.zgodovina = []
         self.st_potez = 0
 
@@ -36,6 +38,7 @@ class Tabla():
             for j in cent_sez(list(range(self.velikost())))[0:3]:
                 self.VREDNOST_POLJ[(j, i)] = 1.5
 
+    # Vrne velikost.
     def velikost(self):
         return len(self.matrika)
 
@@ -65,15 +68,20 @@ class Tabla():
     
     # Shrani pozicijo v zgodovino.
     def shrani_pozicijo(self):
-        #logging.debug("Shranjujem pozicijo...")
+
+        logging.debug("Shranjujem pozicijo...")
+
         p = copy.deepcopy(self.matrika)
         self.zgodovina.append((p, self.na_vrsti))
-        #logging.debug("{0}".format(self.zgodovina))
+
+        logging.debug("{0}".format(self.zgodovina))
 
     # Razveljavi potezo in se vrne v prejšnje stanje.
     def razveljavi(self):
-        #logging.debug("Razveljavljam...")
-        #logging.debug("{0}".format(self.zgodovina))
+
+        logging.debug("Razveljavljam...")
+        logging.debug("{0}".format(self.zgodovina))
+
         (self.matrika, self.na_vrsti) = self.zgodovina.pop()
 
     # Seznam veljavnih potez.
@@ -88,7 +96,7 @@ class Tabla():
         return poteze
 
 
-    # Funkcija, ki potezo zapise v matriko in hkrati doloci katere poteze so mogoce.
+    # Funkcija, ki potezo zapise v matriko in hkrati doloci mozne poteze.
     def spremeni_matriko(self, x, y, n):
         self.matrika[y][x][0] = False
         self.matrika[y][x][1] = False
@@ -114,7 +122,7 @@ class Tabla():
         except:
             pass
 
-        #logging.debug("{0}".format(self.matrika))
+        logging.debug("{0}".format(self.matrika))
 
     #Funkcija shrani potezo v matriko
     def povleci_potezo(self, p):

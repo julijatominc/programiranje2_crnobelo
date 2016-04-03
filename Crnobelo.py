@@ -33,16 +33,19 @@ class Crnobelo():
         self.zvocnik = True
         self.NAMIG = False
 
-        # Ustvarimo napis, ki nas obvesca o dogajanju.
+        # Ustvarimo napis, ki nas obvesca o dogajanju. Sporoča, kaj se dogaja z igralcem racunalnik.
         self.napis = StringVar()
-        Label(master, textvariable=self.napis).grid(row=0, column=0)
+        Label(master, textvariable=self.napis)..grid(row=0, column=0)
 
+        # Ustvarimo napis, ki nas obvesca o dogajanju. Sporoča, kdo je na vrsti.
         self.napis2 = StringVar()
         Label(master, textvariable=self.napis2).grid(row=1, column=0)
     
         
         # Definira vrednosti.
         self.velikost = velikost
+
+        # Ustvari canvas.
         self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1), bg = "white")
         self.canvas.grid(row=2, column=0, columnspan=2)
 
@@ -58,6 +61,7 @@ class Crnobelo():
         # Glavni menu.
         menu = Menu(master)
         master.config(menu=menu)
+        
         # Velikosti okna ne moremo spreminjati.
         master.resizable(width=False, height=False) 
 
@@ -92,12 +96,14 @@ class Crnobelo():
         submenu.add_command(label="Racunalnik Alfa-beta - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
 
         settings_menu = Menu(menu)
+        
         menu.add_cascade(label="Zvok", menu=settings_menu)
         settings_menu.add_command(label="Vklopi zvok", command = lambda: self.zvok(True))
         settings_menu.add_command(label="Izklopi zvok", command = lambda: self.zvok(False))
         
         menu.add_command(label="Pomoc", command = lambda: pomoc())
 
+        # Funkcija, ki odpre novo okno. Vsebina je pomoč.
         def pomoc():
             window = Toplevel(root)
             label = Label(window, text = """Navodila:
@@ -125,6 +131,7 @@ bil beli (in s tem zacel), je sedaj beli njegov nasprotnik (torej zacne on).
 Zvok:
 Vsakic ko se opravi poteza, se zaslisi ton nizke frekvence. Ko je igre konec pa ton visje frekvence. Uporabnik lahko v kaskadi "Zvok"
 izklopi oziroma znova vklopi zvocne efekte.
+Zvok deluje samo v operacijskem sistemu Windows.
 
 Shrani in odpri:
 V kaskadi "Datoteka" ima uporabnik moznost, da igro s klikom na "Shrani" shrani v tekstovno datoteko, ki jo sam poimenuje. Shranjeno igro
@@ -135,7 +142,8 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         
             label.pack(side = "top", fill = "both")
 
-        # logging.debug("Velikost: {0}.".format(self.velikost)),
+        logging.debug("Velikost: {0}.".format(self.velikost))
+        
         self.zacni_igro()
 
     # Funkcija za risanje sahovnice.
@@ -152,6 +160,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
             crni = Clovek(self)
 
         logging.debug("Beli:{0}, Crni:{1}".format(beli,crni))
+        
         self.igra = Tabla(self.velikost)
         self.nova_igra(beli, crni)
 
@@ -175,7 +184,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         else:
             self.BELI, self.CRNI = self.CRNI, self.BELI
 
-        # logging.debug("Velikost: {0}.".format(self.velikost))
+        logging.debug("Velikost: {0}.".format(self.velikost))
 
         #Ustvarimo matriko z zacetnimi vrednostmi
         self.igra.matrika = [[[True, True, None] for _ in  range(self.velikost)] for _ in range(self.velikost)]
@@ -184,34 +193,45 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         self.napis.set("")
 
         self.igra.na_vrsti = BELI
+        self.napis2.set("Na vrsti je beli.")
+        
         logging.debug("Na vrsti:{0}".format(self.igra.na_vrsti))
-
         logging.debug("Beli: {0}, Crni: {1}".format(self.BELI, self.CRNI))
         
-        self.napis2.set("Na vrsti je beli.")
-
         #Zacnemo igro
         self.BELI.igraj()
 
     # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo
     def plosca_klik(self, event):
-        if self.igra.na_vrsti == BELI:
-            self.BELI.klik(event)
-        elif self.igra.na_vrsti == CRNI:
-            self.CRNI.klik(event)
-        else:
+        # Če kliknemo medtem, ko je uklopljen namig, se ne zgodi nič.
+        if self.NAMIG:
             pass
+        # Predamo informacijo naprej.
+        else:
+            if self.igra.na_vrsti == BELI:
+                self.BELI.klik(event)
+            elif self.igra.na_vrsti == CRNI:
+                self.CRNI.klik(event)
+            else:
+                pass
 
-    # Funkcija, ki glede na igralca na vrsti in na njegovo dejanje naredi potezo
+    # Funkcija, ki glede na igralca na vrsti in na njegovo dejanje naredi potezo ali pobarva namig, če je uklopljen.
     def izberi(self, xy):
         x = xy[0]
         y = xy[1]
+        
+        logging.debug("Preverim, ce je konec igre.")
+        
         # Preveri, ce je konec igre. V primeru, da je konec, nocemo vec dogajanja na plosci.
-        #logging.debug("Preverim, ce je konec igre.")
+
         if not self.igra.je_konec():
+            
+            # Pobarvamo namig.
             if self.NAMIG:
                 self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red", tag=Crnobelo.TAG_NAMIG)
                 self.NAMIG = False
+
+            # Naredimo potezo.
             else:
                 self.napis.set("")
                 poteza = self.igra.povleci_potezo(xy)
@@ -248,7 +268,6 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                         if self.zvocnik:
                             try: winsound.Beep(500, 150)
                             except: pass
-                           #winsound.PlaySound("tara", winsound.SND_ALIAS)
 
                     #Igre ni konec, nadaljujemo.
                     else:
@@ -260,25 +279,27 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                         else:
                             assert False
 
-        #logging.debug("{0}".format(self.igra.veljavne_poteze()))
+        logging.debug("{0}".format(self.igra.veljavne_poteze()))
 
-    #pokliče funkcijo izberi z alfabeta in poarva namig
+    # Pokliče funkcijo izberi z alfabeta in pobarva namig.
     def pobarvaj_namig(self):
+        
         self.NAMIG = True
-        if self.igra.na_vrsti == BELI:
+        if self.igra.na_vrsti == BELI and ('Clovek' in (re.findall(r'\.(.+?)\s', str(self.BELI)))):
             nasprotnik = self.CRNI
             self.CRNI = Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
             self.CRNI.igraj()
             self.CRNI = nasprotnik
             self.BELI.igraj()
-        elif self.igra.na_vrsti == CRNI:
+            
+        elif self.igra.na_vrsti == CRNI and ('Clovek' in (re.findall(r'\.(.+?)\s', str(self.CRNI)))):
             nasprotnik = self.BELI
             self.BELI = Racunalnik(self, Alfabeta(ALFABETA_GLOBINA))
             self.BELI.igraj()
             self.BELI = nasprotnik
             self.CRNI.igraj()
             
-        #namig deluje, če ga pokliče človek
+        # Namig deluje, če ga pokliče človek
         else:
             self.NAMIG = False
             pass
@@ -361,29 +382,18 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
             self.CRNI.igraj()
             self.napis2.set("Na potezi je crni.")
 
-
+    # Funkcija izklopi zvok.
     def zvok(self, bool):
         if not bool:
             self.zvocnik = False
 
 
-    # Funkcija, ki prekine igralce
+    # Funkcija, ki prekine igralca.
     def prekini_igralce(self):
         if self.BELI:
             self.BELI.prekini()
         if self.CRNI:
             self.CRNI.prekini()
-
-    # Funkcija, ki vzame potezo nazaj
-    def vzami_nazaj(self):
-        pass
-##
-##    def pobarvaj_namig(self):
-##        poteza = self.BELI.igraj()[0]
-##
-##        elif self.CRNI:
-##            return self.Crnobelo.CRNI.igraj()[]
-##        assert False
 
 ######################################################################
 ## Glavni program
