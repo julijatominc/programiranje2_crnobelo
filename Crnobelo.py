@@ -6,9 +6,10 @@ import ast
 import argparse
 import logging
 import re
-import csv
-try: import winsound
-except: pass
+try:
+    import winsound
+except:
+    pass
 
 
 
@@ -46,7 +47,8 @@ class Crnobelo():
         self.velikost = velikost
 
         # Ustvari canvas.
-        self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1), bg = "white")
+        self.canvas = Canvas(master, width=100*(self.velikost+1), height=100*(self.velikost +1))
+
         self.canvas.grid(row=2, column=0, columnspan=2)
 
         # Na canvas narise zacetno polje.
@@ -96,11 +98,18 @@ class Crnobelo():
         submenu.add_command(label="Racunalnik Alfa-beta - Racunalnik Alfa-beta", command= lambda: self.nova_igra(Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), Racunalnik(self, Alfabeta(ALFABETA_GLOBINA)), None))
 
         settings_menu = Menu(menu)
-        
         menu.add_cascade(label="Zvok", menu=settings_menu)
         settings_menu.add_command(label="Vklopi zvok", command = lambda: self.zvok(True))
         settings_menu.add_command(label="Izklopi zvok", command = lambda: self.zvok(False))
-        
+
+        settings_menu = Menu(menu)
+        menu.add_cascade(label="Barva ozadja", menu=settings_menu)
+        settings_menu.add_command(label="Siva", command = lambda: self.canvas.configure(background='light slate gray'))
+        settings_menu.add_command(label="Modra", command = lambda: self.canvas.configure(background='light sky blue'))
+        settings_menu.add_command(label="Zelena", command = lambda: self.canvas.configure(background='pale green'))
+        settings_menu.add_command(label="Rumena", command = lambda: self.canvas.configure(background='light goldenrod'))
+        settings_menu.add_command(label="Brez barve", command = lambda: self.canvas.configure(background='gray94'))
+
         menu.add_command(label="Pomoc", command = lambda: pomoc())
 
         # Funkcija, ki odpre novo okno. Vsebina je pomoč.
@@ -132,6 +141,10 @@ Zvok:
 Vsakic ko se opravi poteza, se zaslisi ton nizke frekvence. Ko je igre konec pa ton visje frekvence. Uporabnik lahko v kaskadi "Zvok"
 izklopi oziroma znova vklopi zvocne efekte.
 Zvok deluje samo v operacijskem sistemu Windows.
+
+Barva ozadja:
+V kaskadi "Barva ozadja" lahko uporabnik izbira barvo ozadja. Izbira lahko med sivo, modro, zeleno in rumeno, lahko pa tudi povrne barvo
+na prvotno.
 
 Shrani in odpri:
 V kaskadi "Datoteka" ima uporabnik moznost, da igro s klikom na "Shrani" shrani v tekstovno datoteko, ki jo sam poimenuje. Shranjeno igro
@@ -228,7 +241,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
             
             # Pobarvamo namig.
             if self.NAMIG:
-                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="red", tag=Crnobelo.TAG_NAMIG)
+                self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="indian red", tag=Crnobelo.TAG_NAMIG)
                 self.NAMIG = False
 
             # Naredimo potezo.
@@ -309,7 +322,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         poteze = self.igra.veljavne_poteze()
         for i in poteze:
             x, y = i
-            self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill="grey90", tag=Crnobelo.TAG_POTEZA)
+            self.canvas.create_rectangle((x * 100* 6/(self.velikost)+ 50), (y *100* 6/(self.velikost)+ 50), (x * 100* 6/(self.velikost)+ 50+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50+100*6/(self.velikost)), fill='light grey', tag=Crnobelo.TAG_POTEZA)
 
     # Pobrise veljave poteze.
     def pobrisi_poteze(self):
