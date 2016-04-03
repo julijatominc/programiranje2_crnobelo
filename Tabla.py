@@ -17,7 +17,7 @@ def cent_sez(sez):
     return seznam+sez
 
 
-## Igra 
+## Razred, ki doloca pravila igre.
 class Tabla():
     def __init__(self, velikost):
         self.matrika = [[[True, True, None] for _ in range(velikost)] for _ in range(velikost)]
@@ -124,7 +124,7 @@ class Tabla():
 
         logging.debug("{0}".format(self.matrika))
 
-    #Funkcija shrani potezo v matriko
+    # Funkcija shrani potezo v matriko.
     def povleci_potezo(self, p):
         (x, y) = p
 
@@ -142,4 +142,3 @@ class Tabla():
                 self.na_vrsti = BELI
             
             return True
-

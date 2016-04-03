@@ -50,11 +50,11 @@ class Racunalnik():
         # Pozenemo vlakno:
         self.mislec.start()
 
-        # Gremo preverjat, ali je bila najdena poteza:
+        # Gremo preverjati, ali je bila najdena poteza:
         self.Crnobelo.canvas.after(100, self.preveri_potezo)
 
 
-
+    # Funkicja, ki preveri, ce je algoritem izracunal potezo.
     def preveri_potezo(self):
         """Vsakih 100ms preveri, ali je algoritem ze izracunal potezo."""
         if self.algoritem.poteza is not None:
@@ -70,10 +70,9 @@ class Racunalnik():
             # Algoritem se ni nasel poteze, preveri se enkrat cez 100ms
             self.Crnobelo.canvas.after(100, self.preveri_potezo)
 
+    # To metodo klice GUI, ce je treba prekiniti razmisljanje.
     def prekini(self):
-        # To metodo klice GUI, ce je treba prekiniti razmisljanje.
         if self.mislec:
-            
             logging.debug ("Prekinjamo {0}".format(self.mislec))
 
             # Algoritmu sporocimo, da mora nehati z razmisljanjem
@@ -121,7 +120,7 @@ class Minimax():
 
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
-        #Oceni odstejemo dvakratno vrednost vsakega polja nasprotnika.(Bolj napadalna igra.)
+        # Oceni odstejemo dvakratno vrednost vsakega polja nasprotnika.(Bolj napadalna igra.)
         for i in self.igra.veljavne_poteze():
             ocena -= 2*self.tip_polja(i)
 
@@ -132,7 +131,7 @@ class Minimax():
 
         return ocena
 
-    #Izracuna potezo
+    # Funkcija, ki izracuna potezo.
     def izracunaj_potezo(self, igra):
         logging.debug("Igra minimax")
         self.igra = igra
@@ -151,7 +150,7 @@ class Minimax():
 
         """Glavna metoda minimax."""
         if self.prekinitev:
-            # Sporocili so nam, da moramo prekiniti
+            # Sporocili so nam, da moramo prekiniti.
             
             logging.debug ("Minimax prekinja, globina = {0}".format(globina))
 
@@ -227,7 +226,7 @@ class Minimax():
 
 
 
-    #Ustvari seznam sosedov xy
+    # Ustvari seznam sosedov polja xy.
     def sez_sosedov(self, xy):
         if xy in SLOVAR_SOSEDOV:
             return SLOVAR_SOSEDOV[xy]
@@ -413,7 +412,7 @@ class Alfabeta():
 
 
 
-    #Ustvari seznam sosedov xy
+    # Ustvari seznam sosedov polja xy.
     def sez_sosedov(self, xy):
         if xy in SLOVAR_SOSEDOV:
             return SLOVAR_SOSEDOV[xy]
@@ -427,7 +426,7 @@ class Alfabeta():
             SLOVAR_SOSEDOV[xy] = sez
             return sez
 
-    #Funkcija vrne vrednost polja
+    # Funkcija vrne vrednost polja.
     def tip_polja(self, xy):
         sosedi = self.sez_sosedov(xy)
         a = self.igra.veljavne_poteze()
@@ -468,6 +467,7 @@ class Alfabeta():
 #####################################################################
 ## Igralec naklucje
 
+# Razred za igralca, ki igra nakljucne dovoljene poteze.
 class Nakljucje():
     def __init__(self):
         self.prekiitev = False
@@ -475,15 +475,16 @@ class Nakljucje():
         self.jaz = None
         self.poteza = None
 
-    
+    # Funkcija, ki prekine igralca.
     def prekini(self):
         self.prekinitev = True
 
-
+    # Funkcija, ki oceni pozicijo.
     def vrednost_pozicije(self):
+        # Nakljucni igralec ne ocenjuje pozicij, igra nakljucno.
         pass
 
-
+    # Funkcija, ki izracuna potezo.
     def izracunaj_potezo(self, igra):
         logging.debug("Igra random")
         self.igra = igra
@@ -545,4 +546,3 @@ class Clovek():
         x, y = (event.x -(50*6/(velikost) )) // (100*6/(velikost)), (event.y  -(50*6/(velikost))) // (100*6/(velikost))
         if x >= 0 and y >= 0 and x < self.Crnobelo.velikost and y <self.Crnobelo.velikost:
             self.Crnobelo.izberi((int(x),int(y)))
-

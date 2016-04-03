@@ -12,7 +12,7 @@ except:
     pass
 
 
-
+# Zacetne vrednosti.
 BELI = "Beli"
 CRNI = "Crni"
 VELIKOST = 6
@@ -20,6 +20,7 @@ MINIMAX_GLOBINA = 2
 ALFABETA_GLOBINA = 2
 
 
+# Razred, ki definira graficni vmesnik.
 class Crnobelo():
     # Ustvarimo tag, da se bomo lahko kasneje sklicevali.
     TAG_KROG = 'krog'
@@ -43,7 +44,7 @@ class Crnobelo():
         Label(master, textvariable=self.napis2).grid(row=1, column=0)
     
         
-        # Definira vrednosti.
+        # Nastavi velikost.
         self.velikost = velikost
 
         # Ustvari canvas.
@@ -54,10 +55,10 @@ class Crnobelo():
         # Na canvas narise zacetno polje.
         self.narisi()
 
-        # Povezemo klik z dogodkom
+        # Povezemo klik z dogodkom.
         self.canvas.bind("<Button-1>", self.plosca_klik)
         
-        # Gumb za namig
+        # Gumb za namig.
         Button(master, text= "Namig", command = lambda: self.pobarvaj_namig()).grid(row = 0, column = 1, rowspan = 2)
     
         # Glavni menu.
@@ -214,9 +215,9 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
         #Zacnemo igro
         self.BELI.igraj()
 
-    # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo
+    # Funkcija, ki preda dogodek na plosci razredu igralca, ki je storil to potezo.
     def plosca_klik(self, event):
-        # Če kliknemo medtem, ko je uklopljen namig, se ne zgodi nič.
+        # Če kliknemo medtem, ko je vklopljen namig, se ne zgodi nič.
         if self.NAMIG:
             pass
         # Predamo informacijo naprej.
@@ -228,7 +229,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
             else:
                 pass
 
-    # Funkcija, ki glede na igralca na vrsti in na njegovo dejanje naredi potezo ali pobarva namig, če je uklopljen.
+    # Funkcija, ki glede na igralca na vrsti in na njegovo dejanje naredi potezo ali pobarva namig, če je vklopljen.
     def izberi(self, xy):
         x = xy[0]
         y = xy[1]
@@ -249,7 +250,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                 self.napis.set("")
                 poteza = self.igra.povleci_potezo(xy)
                 
-                #Poteza je neveljavna. Poskusimo ponovno
+                # Poteza je neveljavna. Poskusimo ponovno
                 if poteza is None:
                     self.napis.set("Neveljavna poteza!")
                     if self.igra.na_vrsti == BELI:
@@ -258,7 +259,8 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                         self.CRNI.igraj()
                     else:
                         assert False
-                #Poteza je veljavna.
+
+                # Poteza je veljavna.
                 else:
                     if self.igra.na_vrsti == CRNI:
                         self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
@@ -268,12 +270,12 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                         self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
                         self.napis2.set("Na vrsti je beli.")
 
-                    #Ob odigrani potezi: beep!
+                    # Ob odigrani potezi: beep!
                     if self.zvocnik:
                         try: winsound.Beep(150, 75)
                         except: pass
                         
-                    #Ce je igre konec.
+                    # Ce je igre konec.
                     if self.igra.je_konec():
                         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
                         self.napis2.set("")
@@ -282,7 +284,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                             try: winsound.Beep(500, 150)
                             except: pass
 
-                    #Igre ni konec, nadaljujemo.
+                    # Igre ni konec, nadaljujemo.
                     else:
 
                         if self.igra.na_vrsti == BELI:
@@ -294,7 +296,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
 
         logging.debug("{0}".format(self.igra.veljavne_poteze()))
 
-    # Pokliče funkcijo izberi z alfabeta in pobarva namig.
+    # Poklice funkcijo izberi z alfabeta in pobarva namig.
     def pobarvaj_namig(self):
         
         self.NAMIG = True
@@ -312,7 +314,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
             self.BELI = nasprotnik
             self.CRNI.igraj()
             
-        # Namig deluje, če ga pokliče človek
+        # Namig deluje, če ga poklice človek
         else:
             self.NAMIG = False
             pass
@@ -414,6 +416,7 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Igrica Crnobelo")
 
+    # Opisemo argumente, ki jih sprejmemo iz ukazne vrstice.
     parser.add_argument('--debug',
                         action='store_true',
                         help='vklopi sporocila o dogajanju')
@@ -437,7 +440,7 @@ if __name__ == "__main__":
 
 
 
-    # Naredimo glavno okno in nastavimo ime
+    # Naredimo glavno okno in nastavimo ime.
     root = Tk()
     root.title("Crnobelo")
     # Naredimo objekt razreda Gui in ga spravimo v spremenljivko,
