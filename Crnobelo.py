@@ -270,13 +270,13 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
                     if self.igra.na_vrsti == CRNI:
                         self.canvas.delete(Crnobelo.TAG_ZP)
                         self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "white", tag=Crnobelo.TAG_KROG)
-                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "blue", tag=Crnobelo.TAG_ZP)
+                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+45* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+45* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-45* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-45* 6/(self.velikost)+100*6/(self.velikost)), fill = "blue", tag=Crnobelo.TAG_ZP)
                         self.napis2.set("Na vrsti je crni.")
                         
                     else:
                         self.canvas.delete(Crnobelo.TAG_ZP)
                         self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "black", tag=Crnobelo.TAG_KROG)
-                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+10* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-10* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-10* 6/(self.velikost)+100*6/(self.velikost)), fill = "blue", tag=Crnobelo.TAG_ZP)
+                        self.canvas.create_oval((x * 100* 6/(self.velikost)+ 50+45* 6/(self.velikost)), (y *100* 6/(self.velikost)+ 50+45* 6/(self.velikost)), (x * 100* 6/(self.velikost)+ 50-45* 6/(self.velikost)+100*6/(self.velikost)), (y *100* 6/(self.velikost) + 50-45* 6/(self.velikost)+100*6/(self.velikost)), fill = "blue", tag=Crnobelo.TAG_ZP)
                         self.napis2.set("Na vrsti je beli.")
 
                     # Ob odigrani potezi: beep!
