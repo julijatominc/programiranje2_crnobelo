@@ -182,8 +182,10 @@ S klikom na "Izhod" v kaskadi "Datoteka" uporabnik zapusti igro.""")
     # Funkcija, ki ustvari novo igro.
     def nova_igra(self, beli=None, crni=None, velikost=None):
         self.canvas.delete(Crnobelo.TAG_NAMIG)
-        self.NAMIG = False
+        self.canvas.delete(Crnobelo.TAG_ZP)
         self.canvas.delete(Crnobelo.TAG_POTEZA)
+        self.NAMIG = False
+
         logging.debug("Nova igra")
         self.prekini_igralce()
 

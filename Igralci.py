@@ -303,7 +303,7 @@ class Alfabeta():
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
         for i in self.igra.veljavne_poteze():
-            ocena -= 2*self.tip_polja(i)
+            ocena -= 1.2*self.tip_polja(i)
 
         self.igra.na_vrsti = nasprotnik(self.igra.na_vrsti)
 
